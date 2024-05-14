@@ -30,3 +30,22 @@ def collaborateurs_proches(G,u,k):
                     collaborateurs_directs.add(voisin)
         collaborateurs = collaborateurs.union(collaborateurs_directs)
     return collaborateurs
+
+
+
+def transformation(fichier):
+    res = []
+    f = open(fichier, "r")
+    for ligne in f:
+        fic = eval(ligne) #transforme en dico
+        res.append(fic) #création d'une liste de dictionnaires
+    for dic in res:
+        for i in range(len(dic["cast"])):
+            nom = dic["cast"][i].strip("[]")
+            dic["cast"][i] = nom
+    return res
+
+
+test = transformation("jeux de données réduits-20240506/data_100.txt")
+for dic in test:
+    print(dic["cast"])
