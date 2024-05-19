@@ -65,11 +65,21 @@ def transformation_graphe(transfo):
     return G
 
 
+def collaborateurs_communs(G, actor1, actor2):
+        ensemble_acteurs = set()
+        collab_actor1 = collaborateurs_proches(G, actor1, 1)
+        collab_actor2 = collaborateurs_proches(G, actor2, 1)
+        for actor in collab_actor1:
+            if actor in collab_actor2:
+                ensemble_acteurs.add(actor)
+        return ensemble_acteurs
+
 
 
 transfo = transformation("jeux de données réduits-20240506/data_100.txt")
-test = transformation_graphe(transfo)
-print(collaborateurs_proches(test, "Michelle Pfeiffer", 1))
+graphe = transformation_graphe(transfo)
+print(collaborateurs_communs(graphe, "Lew Horn", "Al Pacino"))
+
 
 #plt.figure(figsize=(12, 8))
 #pos = nx.spring_layout(test, k=0.15, scale = 2)  # Utilisation de spring_layout avec un paramètre de ressort k ajusté
