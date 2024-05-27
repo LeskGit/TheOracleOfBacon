@@ -79,6 +79,23 @@ def collaborateurs_proches(G, u, k):
     return collaborateurs
 
 def est_proche(G, u, v, k = 1):
+    if u not in G.nodes:
+        print(u," est un illustre inconnu")
+        return None
+    if v not in G.nodes:
+        print(v," est un illustre inconnu")
+        return None
+    collaborateurs = set()
+    collaborateurs.add(u)
+    print(collaborateurs)
+    for i in range(k):
+        collaborateurs_directs = set()
+        for c in collaborateurs:
+            for voisin in G.adj[c]:
+                if voisin not in collaborateurs:
+                    collaborateurs_directs.add(voisin)
+        collaborateurs = collaborateurs.union(collaborateurs_directs)
+    return collaborateurs
 
 def distance_naive(G, u, v):
 
