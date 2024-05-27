@@ -39,7 +39,7 @@ def json_vers_nx(chemin):
             for all_actor_temp in liste_temp:
                 if actor_temp != all_actor_temp and (actor_temp, all_actor_temp) not in G.edges():
                     G.add_edge(actor_temp, all_actor_temp)
-            print(G)
+            
     return G
 
 # Q2
@@ -86,29 +86,35 @@ def distance(G, u, v):
     pass
 # Q4
 
-#Utilitaire
+
+
+
+#Pile pour le parcours en profondeur
 
 def stack_init():
     return []
 
 def stack_top(S):
-    return S[-1]
+    return S[-1][0]  # Renvoie le sommet au sommet de la pile
 
 def stack_pop(S):
-    return S.pop()
+    return S.pop()  # Retire et renvoie le sommet au sommet de la pile
 
-def stack_push(S,u):
-    S.append(u)
+def stack_push(S, u, distance):
+    S.append((u, distance))  # Ajoute le sommet et sa distance à la pile
 
-def graph_init(G,u):
+def stack_top_distance(S):
+    return S[-1][1]  # Renvoie la distance du sommet au sommet de la pile
+
+def graph_init(G, u):
     for v in G.nodes:
         G.nodes[v]["color"] = "white"
         G.nodes[v]["father"] = None
     for u, v in G.edges:
-        G.edges[u,v]["color"] = "black"
+        G.edges[u, v]["color"] = "black"
     G.nodes[u]["color"] = "red"
 
-def visiter(G,v,w):
+def visiter(G, v, w):
     G.nodes[w]["color"] = "red"
     G.nodes[w]["father"] = v
 
@@ -116,7 +122,7 @@ def traiter(G, u):
     G.nodes[u]["color"] = "green"
 
 def arete_arbre(G, v, w):
-    G.edges[(v,w)]["color"] = "green"
+    G.edges[(v, w)]["color"] = "green"
 
 def voisin_blanc(G, u):
     for w in G.adj[u]:
@@ -124,53 +130,74 @@ def voisin_blanc(G, u):
             return w
     return None
 
-def DFS(G,u):
+#Parcours en profondeur
+
+def DFS(G, u):
     """
     Implémentation de l'algorithme du parcours en profondeur (DFS) en utilisant une pile.
-    
+
     Paramètres:
     G -- le graphe que l'on veut parcourir
     u -- le sommet de départ du parcours
     """
-    
-    # initialisation
-    
-    S = stack_init()
-    stack_push(S,u)
-    graph_init(G,u)
-    yield G #  pour l'animation
-    visiter(G,None,u)
-    
-    # boucle principale
+
+    # Initialisation
+    S = stack_init()  # Initialise une pile vide
+    stack_push(S, u, 0)  # Pousse le nœud de départ sur la pile avec la distance 0
+    graph_init(G, u)  # Initialise les nœuds et les arêtes du graphe
+
+    visiter(G, None, u)  # Marque le nœud de départ comme visité
+
+    max_distance = 0  # Initialise la distance maximale
+    sommet_eloigne = u  # Initialise le nœud le plus éloigné
+
+    # Boucle principale
     while len(S) > 0:
-        yield G #  pour l'animation
-        v = stack_top(S)
-        w = voisin_blanc(G,v) # on recherche un voisin non visité
-        if w != None:
-            stack_push(S,w)
-            visiter(G,v,w)
-            arete_arbre(G,v,w)
+
+        v = stack_top(S)  # Récupère le nœud au sommet de la pile
+        distance = stack_top_distance(S)  # Récupère la distance associée au sommet
+        w = voisin_blanc(G, v)  # Trouve un voisin non visité de v
+        if w is not None:
+            new_dist = distance + 1
+            stack_push(S, w, new_dist)  # Ajoute w à la pile avec la nouvelle distance
+            visiter(G, v, w)  # Marque w comme visité et définit son père comme v
+            arete_arbre(G, v, w)  # Marque l'arête (v, w) comme faisant partie de l'arbre DFS
+            if new_dist > max_distance:
+                max_distance = new_dist
+                sommet_eloigne = w
         else:
-            traiter(G,v)
-            stack_pop(S)
-        yield G # pour animation
+            traiter(G, v)  # Marque v comme complètement exploré
+            stack_pop(S)  # Retire v de la pile
+
+    G.max_distance = max_distance
+    G.sommet_eloigne = sommet_eloigne
+    return []
 
 
-graphe = json_vers_nx("jeux de données réduits-20240506/data_100.txt")                     
-graph_init(graphe,0)
-parcours_g = DFS(graphe,0)
+graphe = json_vers_nx("jeux de données réduits-20240506/data_100.txt")
 
-i = 0
-for etat_de_G in parcours_g:
-    print("etape", i, etat_de_G.nodes[3])
-    i+=1
 
-def centralite(G, u):
-    pass
+def centralite_acteur(G, actor):
+    graph_init(graphe, 0)
+    parcours_g = DFS(graphe, actor)
+    sommet_eloigne = graphe.sommet_eloigne
+    max_distance = graphe.max_distance
+    return sommet_eloigne, max_distance
 
+print(centralite_acteur(graphe, ""))
 
 def centre_hollywood(G):
-    pass
+    acteur_central = ""
+    dist_max = 0
+    for actor in G.nodes():
+        acteur_actuel, dist = centralite_acteur(G, actor)
+        if dist > dist_max:
+            acteur_central = acteur_actuel
+            dist_max = dist
+    return acteur_central, dist_max
+
+print(centre_hollywood(graphe))
+
 # Q5
 
 def eloignement_max(G:nx.Graph):
