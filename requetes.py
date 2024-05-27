@@ -13,7 +13,9 @@ import matplotlib.pyplot as plt
 
 def transformation_dic(chemin):
     res = []
+
     f = open(chemin, "r")
+
     for ligne in f:
         fic = eval(ligne) #transforme en dico
         res.append(fic) #création d'une liste de dictionnaires
@@ -39,7 +41,7 @@ def json_vers_nx(chemin):
             for all_actor_temp in liste_temp:
                 if actor_temp != all_actor_temp and (actor_temp, all_actor_temp) not in G.edges():
                     G.add_edge(actor_temp, all_actor_temp)
-            
+                    
     return G
 
 # Q2
@@ -79,6 +81,7 @@ def collaborateurs_proches(G, u, k):
     return collaborateurs
 
 def est_proche(G, u, v, k = 1):
+
     pass
 def distance_naive(G, u, v):
     pass
@@ -198,14 +201,50 @@ def centre_hollywood(G):
 
 print(centre_hollywood(graphe))
 
+    if u not in G.nodes:
+        print(u," est un illustre inconnu")
+        return None
+    if v not in G.nodes:
+        print(v," est un illustre inconnu")
+        return None
+    collaborateurs = set()
+    collaborateurs.add(u)
+    print(collaborateurs)
+    for i in range(k):
+        collaborateurs_directs = set()
+        for c in collaborateurs:
+            for voisin in G.adj[c]:
+                if voisin not in collaborateurs:
+                    collaborateurs_directs.add(voisin)
+        collaborateurs = collaborateurs.union(collaborateurs_directs)
+    return collaborateurs
+
+def distance_naive(G, u, v):
+
+def distance(G, u, v):
+
+# Q4
+
+def centralite(G, u):
+
+def centre_hollywood(G):
+
+
 # Q5
 
 def eloignement_max(G:nx.Graph):
+
     pass
 # Bonus
 
 def centralite_groupe(G, S):
     pass
+
+
+# Bonus
+
+def centralite_groupe(G, S):
+
 
 #plt.figure(figsize=(12, 8))
 #pos = nx.spring_layout(test, k=0.15, scale = 2)  # Utilisation de spring_layout avec un paramètre de ressort k ajusté
