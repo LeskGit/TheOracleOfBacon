@@ -66,13 +66,9 @@ def transformation_graphe(transfo):
 
 
 def collaborateurs_communs(G, actor1, actor2):
-        ensemble_acteurs = set()
-        collab_actor1 = collaborateurs_proches(G, actor1, 1)
-        collab_actor2 = collaborateurs_proches(G, actor2, 1)
-        for actor in collab_actor1:
-            if actor in collab_actor2:
-                ensemble_acteurs.add(actor)
-        return ensemble_acteurs
+        return set(G[actor1]) & set(G[actor2])
+
+        
 
 
 
