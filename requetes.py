@@ -13,9 +13,7 @@ import matplotlib.pyplot as plt
 
 def transformation_dic(chemin):
     res = []
-
-
-    
+    f = open(chemin, "r")
     for ligne in f:
         fic = eval(ligne) #transforme en dico
         res.append(fic) #création d'une liste de dictionnaires
@@ -95,10 +93,55 @@ def est_proche(G, u, v, k=24):
     """
     collaborateurs = collaborateurs_proches(G, u, k)
     return v in collaborateurs
+
+def distance_naive(G, u, v):
+    if u not in G.nodes or v not in G.nodes:
+        return None
+    distance = 0
+    i = 0
+    collab = collaborateurs_proches(G, u, distance)
+    while v not in collab and i<len(G):
+        distance += 1
+        i += 1
+        collab = collaborateurs_proches(G, u, distance)
+    if i != len(G):
+        return distance
+    return -1
+    
+def distance(G, u, v):
+    """
+    Recherche en largeur pour déterminer la distance entre deux acteurs.
+    
+    Paramètres:
+        G: le graphe
+        u: le sommet de départ
+        v: le sommet d'arrivée
+        
+    Retourne:
+        La distance entre u et v, -1 si v n'est pas atteignable depuis u ou None si u ou v n'existe pas.
+    """
+    if u not in G.nodes or v not in G.nodes:
+        return None
+    
+    queue = [(u, 0)]  # stocke les sommets à explorer et leur distance par rapport au sommet de départ
+    visited = {u}     # Ensemble des sommets visités
+    
+    while queue: #tant que queue n'est pas vide
+        sommet_actuel, distance = queue.pop(0)  # Retire le premier élément de la file
+        if sommet_actuel == v:
+            return distance
+        for voisin in G.adj[sommet_actuel]:
+            if voisin not in visited:
+                visited.add(voisin)
+                queue.append((voisin, distance + 1))  # Ajoute le voisin à la file avec la distance + 1
+    
+    return -1  # Si v n'est pas atteignable depuis u
+
+test = json_vers_nx("jeux de données réduits-20240506/data_100.txt")
+print(distance_naive(test, "Anne Bancroft", "Robert Downey Jr."))
+print(distance(test, "Anne Bancroft", "Robert Downey Jr."))
+
 # Q4
-
-
-
 
 #Pile pour le parcours en profondeur
 
@@ -195,7 +238,6 @@ def centralite_acteur(G, actor):
     max_distance = graphe.max_distance
     return sommet_eloigne, max_distance
 
-print(centralite_acteur(graphe, ""))
 
 def centre_hollywood(G):
     acteur_central = ""
@@ -207,76 +249,10 @@ def centre_hollywood(G):
             dist_max = dist
     return acteur_central, dist_max
 
-print(centre_hollywood(graphe))
-
-    if u not in G.nodes:
-        print(u," est un illustre inconnu")
-        return None
-    if v not in G.nodes:
-        print(v," est un illustre inconnu")
-        return None
-    collaborateurs = set()
-    collaborateurs.add(u)
-    print(collaborateurs)
-    for i in range(k):
-        collaborateurs_directs = set()
-        for c in collaborateurs:
-            for voisin in G.adj[c]:
-                if voisin not in collaborateurs:
-                    collaborateurs_directs.add(voisin)
-        collaborateurs = collaborateurs.union(collaborateurs_directs)
-    return collaborateurs
-
-
-def distance_naive(G, u, v):
-    """
-    Recherche en largeur pour déterminer la distance entre deux acteurs.
-    
-    Paramètres:
-        G: le graphe
-        u: le sommet de départ
-        v: le sommet d'arrivée
-        
-    Retourne:
-        La distance entre u et v, ou None si v n'est pas atteignable depuis u.
-    """
-    if u not in G.nodes or v not in G.nodes:
-        return None
-    
-    queue = [(u, 0)]  # stocke les sommets à explorer et leur distance par rapport au sommet de départ
-    visited = {u}     # Ensemble des sommets visités
-    
-    while queue: #tant que queue n'est pas vide
-        sommet_actuel, distance = queue.pop(0)  # Retire le premier élément de la file
-        if sommet_actuel == v:
-            return distance
-        for voisin in G.adj[sommet_actuel]:
-            if voisin not in visited:
-                visited.add(voisin)
-                queue.append((voisin, distance + 1))  # Ajoute le voisin à la file avec la distance + 1
-    
-    return None  # Si v n'est pas atteignable depuis u
-
-graphe = json_vers_nx("jeux de données réduits-20240506/data_100.txt")
-print(est_proche(graphe, "Harmony Korine", "Marisa Varela"))
-print(distance_naive(graphe, "Harmony Korine", "Marisa Varela"))
-
-
-
-#def distance(G, u, v):
-
-# Q4
-
-#def centralite(G, u):
-
-#def centre_hollywood(G):
-
-
 # Q5
 
 #def eloignement_max(G:nx.Graph):
 
-    pass
 # Bonus
 
 #plt.figure(figsize=(12, 8))
