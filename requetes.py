@@ -112,11 +112,11 @@ def traiter(G, v):
     G.nodes[v]["color"] = "green"
 
 def voisin_blanc(G, u):
-    voisin = None
+    voisin = set()
     for w in G.adj[u]:
         if G.nodes[w]["color"] == "white":
-            voisin = w
-            break  # Quand on a trouvé
+            voisin.add(w)
+           
     return voisin
 
 #Parcours en profondeur
@@ -139,22 +139,24 @@ def DFS(G,u):
     S.append(u)
     graph_init(G)
     visiter(G,None,u)
-    fathers = {u: (None, 0)}
-    
+    dist_max = 0
+    actor_target = u
+    father = {u: (None, 0)}
     
     # boucle principale
     while len(S) > 0:
         v = S[-1]
         w = voisin_blanc(G,v) # on recherche un voisin non visité
         if w != None:
-            visiter(G,v,w)
-            arete_arbre(G,v,w)
-            fathers[w] = (v, fathers[v][1] + 1)
+            for voisin in w:
+                visiter(G,v,w)
+                arete_arbre(G,v,w)
+                father[voisin] = (v, father[v][1] + 1)
             S.append(w)
         else:
             traiter(G,v)
             S.pop()
-    return fathers
+    
     
 G = json_vers_nx("jeux de données réduits-20240506/data_100.txt")    
 
