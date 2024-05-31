@@ -143,110 +143,106 @@ print(distance(test, "Anne Bancroft", "Robert Downey Jr."))
 
 # Q4
 
-#Pile pour le parcours en profondeur
 
-def stack_init():
-    return []
-
-def stack_top(S):
-    return S[-1][0]  # Renvoie le sommet au sommet de la pile
-
-def stack_pop(S):
-    return S.pop()  # Retire et renvoie le sommet au sommet de la pile
-
-def stack_push(S, u, distance):
-    S.append((u, distance))  # Ajoute le sommet et sa distance à la pile
-
-def stack_top_distance(S):
-    return S[-1][1]  # Renvoie la distance du sommet au sommet de la pile
-
-def graph_init(G, u):
+def graph_init(G):
+    """
+    Initialisation des attributs des nœuds et des arêtes du graphe.
+    
+    Paramètres:
+    G -- le graphe à initialiser
+    """
     for v in G.nodes:
         G.nodes[v]["color"] = "white"
         G.nodes[v]["father"] = None
     for u, v in G.edges:
         G.edges[u, v]["color"] = "black"
-    G.nodes[u]["color"] = "red"
 
 def visiter(G, v, w):
+    """
+    Met à jour les attributs d'un nœud lors de sa visite.
+    
+    Paramètres:
+    G -- le graphe contenant le nœud
+    v -- le nœud parent
+    w -- le nœud en cours de visite
+    """
     G.nodes[w]["color"] = "red"
     G.nodes[w]["father"] = v
 
-def traiter(G, u):
-    G.nodes[u]["color"] = "green"
-
 def arete_arbre(G, v, w):
-    G.edges[(v, w)]["color"] = "green"
-
-def voisin_blanc(G, u):
-    for w in G.adj[u]:
-        if G.nodes[w]["color"] == "white":
-            return w
-    return None
-
-#Parcours en profondeur
-
-def DFS(G, u):
     """
-    Implémentation de l'algorithme du parcours en profondeur (DFS) en utilisant une pile.
-
+    Met à jour la couleur d'une arête pour indiquer qu'elle appartient à l'arbre de parcours.
+    
     Paramètres:
-    G -- le graphe que l'on veut parcourir
-    u -- le sommet de départ du parcours
+    G -- le graphe contenant l'arête
+    v -- le nœud de départ de l'arête
+    w -- le nœud d'arrivée de l'arête
     """
+    G.edges[v, w]["color"] = "green"
 
+def traiter(G, v):
+    """
+    Met à jour les attributs d'un nœud après son traitement.
+    
+    Paramètres:
+    G -- le graphe contenant le nœud
+    v -- le nœud à traiter
+    """
+    G.nodes[v]["color"] = "green"
+
+
+
+def centralite_acteur(G, u):
+    """
+    Implémentation de l'algorithme de parcours en largeur (BFS) en utilisant une liste comme file d'attente.
+    
+    Paramètres:
+    G -- le graphe à parcourir
+    u -- le sommet de départ du parcours
+    
+    Valeur de retour:
+    actor_target -- le nœud le plus éloigné du nœud de départ
+    dist_max -- la distance maximale à partir du nœud de départ
+    """
+    
     # Initialisation
-    S = stack_init()  # Initialise une pile vide
-    stack_push(S, u, 0)  # Pousse le nœud de départ sur la pile avec la distance 0
-    graph_init(G, u)  # Initialise les nœuds et les arêtes du graphe
-
-    visiter(G, None, u)  # Marque le nœud de départ comme visité
-
-    max_distance = 0  # Initialise la distance maximale
-    sommet_eloigne = u  # Initialise le nœud le plus éloigné
-
+    Q = []
+    Q.append(u)
+    graph_init(G)
+    visiter(G, None, u)
+    dist_max = 0
+    actor_target = u
+    father = {u: (None, 0)}
+    
     # Boucle principale
-    while len(S) > 0:
-
-        v = stack_top(S)  # Récupère le nœud au sommet de la pile
-        distance = stack_top_distance(S)  # Récupère la distance associée au sommet
-        w = voisin_blanc(G, v)  # Trouve un voisin non visité de v
-        if w is not None:
-            new_dist = distance + 1
-            stack_push(S, w, new_dist)  # Ajoute w à la pile avec la nouvelle distance
-            visiter(G, v, w)  # Marque w comme visité et définit son père comme v
-            arete_arbre(G, v, w)  # Marque l'arête (v, w) comme faisant partie de l'arbre DFS
-            if new_dist > max_distance:
-                max_distance = new_dist
-                sommet_eloigne = w
-        else:
-            traiter(G, v)  # Marque v comme complètement exploré
-            stack_pop(S)  # Retire v de la pile
-
-    G.max_distance = max_distance
-    G.sommet_eloigne = sommet_eloigne
-    return []
+    while len(Q) > 0:
+        v = Q.pop(0)  # Défile le premier élément de la liste
+        for w in G.adj[v]:
+            if G.nodes[w]["color"] == "white":
+                visiter(G, v, w)
+                arete_arbre(G, v, w)
+                father[w] = (v, father[v][1] + 1)
+                if father[w][1] > dist_max:
+                    dist_max = father[w][1]
+                    actor_target = w
+                Q.append(w)
+        traiter(G, v)
+    return actor_target, dist_max
 
 
-graphe = json_vers_nx("jeux de données réduits-20240506/data_100.txt")
 
+G = json_vers_nx("jeux de données réduits-20240506/data_100.txt")    
 
-def centralite_acteur(G, actor):
-    graph_init(graphe, 0)
-    parcours_g = DFS(graphe, actor)
-    sommet_eloigne = graphe.sommet_eloigne
-    max_distance = graphe.max_distance
-    return sommet_eloigne, max_distance
 
 
 def centre_hollywood(G):
     acteur_central = ""
-    dist_max = 0
+    dist_max = None
     for actor in G.nodes():
-        acteur_actuel, dist = centralite_acteur(G, actor)
-        if dist > dist_max:
-            acteur_central = acteur_actuel
-            dist_max = dist
+        centralite = centralite_acteur(G, actor)
+        if dist_max is None or centralite[1] < dist_max:
+            dist_max = centralite[1]
+            acteur_central = actor
     return acteur_central, dist_max
 
 # Q5
