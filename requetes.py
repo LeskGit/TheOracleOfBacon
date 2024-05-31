@@ -80,14 +80,7 @@ def collaborateurs_proches(G, u, k):
         collaborateurs = collaborateurs.union(collaborateurs_directs)
     return collaborateurs
 
-def est_proche(G, u, v, k = 1):
 
-    pass
-def distance_naive(G, u, v):
-    pass
-def distance(G, u, v):
-    pass
-# Q4
 
 
 
@@ -204,62 +197,3 @@ print(centre_hollywood(G))
 
 
 
-
-
-
-
-def est_proche():
-    if u not in G.nodes:
-        print(u," est un illustre inconnu")
-        return None
-    if v not in G.nodes:
-        print(v," est un illustre inconnu")
-        return None
-    collaborateurs = set()
-    collaborateurs.add(u)
-    print(collaborateurs)
-    for i in range(k):
-        collaborateurs_directs = set()
-        for c in collaborateurs:
-            for voisin in G.adj[c]:
-                if voisin not in collaborateurs:
-                    collaborateurs_directs.add(voisin)
-        collaborateurs = collaborateurs.union(collaborateurs_directs)
-    return collaborateurs
-
-def distance_naive(G, u, v):
-    pass
-def distance(G, u, v):
-    pass
-# Q4
-
-def centralite(G, u):
-    pass
-def centre_hollywood(G):
-    pass
-
-# Q5
-
-def eloignement_max(G:nx.Graph):
-
-    pass
-# Bonus
-
-def centralite_groupe(G, S):
-    pass
-
-
-# Bonus
-
-def centralite_groupe(G, S):
-    pass
-
-#plt.figure(figsize=(12, 8))
-#pos = nx.spring_layout(test, k=0.15, scale = 2)  # Utilisation de spring_layout avec un paramètre de ressort k ajusté
-
-#nx.draw(test, pos, with_labels=True, node_color='lightblue', edge_color='gray', node_size=200, font_size=10)  # Taille de nœud et police réduites
-#plt.show()
-
-#transfo = transformation("jeux de données réduits-20240506/data_100.txt")
-#graphe = transformation_graphe(transfo)
-#print(collaborateurs_communs(graphe, "Lew Horn", "Al Pacino"))
