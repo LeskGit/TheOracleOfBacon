@@ -94,90 +94,121 @@ def distance(G, u, v):
 
 #Pile pour le parcours en profondeur
 
+import networkx as nx
+
 def graph_init(G):
+    """
+    Initialisation des attributs des nœuds et des arêtes du graphe.
+    
+    Paramètres:
+    G -- le graphe à initialiser
+    """
     for v in G.nodes:
         G.nodes[v]["color"] = "white"
         G.nodes[v]["father"] = None
     for u, v in G.edges:
-        G.edges[u,v]["color"] = "black"
-        
-def visiter(G,v,w):
+        G.edges[u, v]["color"] = "black"
+
+def visiter(G, v, w):
+    """
+    Met à jour les attributs d'un nœud lors de sa visite.
+    
+    Paramètres:
+    G -- le graphe contenant le nœud
+    v -- le nœud parent
+    w -- le nœud en cours de visite
+    """
     G.nodes[w]["color"] = "red"
     G.nodes[w]["father"] = v
 
 def arete_arbre(G, v, w):
-    G.edges[v,w]["color"] = "green"
-
-def traiter(G, v):
-    G.nodes[v]["color"] = "green"
-
-def voisin_blanc(G, u):
-    voisin = set()
-    for w in G.adj[u]:
-        if G.nodes[w]["color"] == "white":
-            voisin.add(w)
-           
-    return voisin
-
-#Parcours en profondeur
-
-def DFS(G,u):
     """
-    Implémentation de l'algorithme du parcours en profondeur (DFS) en utilisant une pile.
+    Met à jour la couleur d'une arête pour indiquer qu'elle appartient à l'arbre de parcours.
     
     Paramètres:
-    G -- le graphe que l'on veut parcourir
+    G -- le graphe contenant l'arête
+    v -- le nœud de départ de l'arête
+    w -- le nœud d'arrivée de l'arête
+    """
+    G.edges[v, w]["color"] = "green"
+
+def traiter(G, v):
+    """
+    Met à jour les attributs d'un nœud après son traitement.
+    
+    Paramètres:
+    G -- le graphe contenant le nœud
+    v -- le nœud à traiter
+    """
+    G.nodes[v]["color"] = "green"
+
+
+
+def centralite_acteur(G, u):
+    """
+    Implémentation de l'algorithme de parcours en largeur (BFS) en utilisant une liste comme file d'attente.
+    
+    Paramètres:
+    G -- le graphe à parcourir
     u -- le sommet de départ du parcours
     
     Valeur de retour:
-    fathers -- un dictionnaire indiquant pour chaque sommet du graphe que l'on a visité par quel sommet on y est arrivé.
+    actor_target -- le nœud le plus éloigné du nœud de départ
+    dist_max -- la distance maximale à partir du nœud de départ
     """
     
-    # initialisation
-    
-    S = []
-    S.append(u)
+    # Initialisation
+    Q = []
+    Q.append(u)
     graph_init(G)
-    visiter(G,None,u)
+    visiter(G, None, u)
     dist_max = 0
     actor_target = u
     father = {u: (None, 0)}
     
-    # boucle principale
-    while len(S) > 0:
-        v = S[-1]
-        w = voisin_blanc(G,v) # on recherche un voisin non visité
-        if w != None:
-            for voisin in w:
-                visiter(G,v,w)
-                arete_arbre(G,v,w)
-                father[voisin] = (v, father[v][1] + 1)
-            S.append(w)
-        else:
-            traiter(G,v)
-            S.pop()
-    
-    
+    # Boucle principale
+    while len(Q) > 0:
+        v = Q.pop(0)  # Défile le premier élément de la liste
+        for w in G.adj[v]:
+            if G.nodes[w]["color"] == "white":
+                visiter(G, v, w)
+                arete_arbre(G, v, w)
+                father[w] = (v, father[v][1] + 1)
+                if father[w][1] > dist_max:
+                    dist_max = father[w][1]
+                    actor_target = w
+                Q.append(w)
+        traiter(G, v)
+    return actor_target, dist_max
+
+
+
 G = json_vers_nx("jeux de données réduits-20240506/data_100.txt")    
 
 
-def centralite_acteur(G, actor):
-    pass
-
-print(DFS(G, "Al Pacino")) 
 
 def centre_hollywood(G):
     acteur_central = ""
-    dist_max = 0
+    dist_max = None
     for actor in G.nodes():
-        acteur_actuel, dist = centralite_acteur(G, actor)
-        if dist > dist_max:
-            acteur_central = acteur_actuel
-            dist_max = dist
+        centralite = centralite_acteur(G, actor)
+        if dist_max is None or centralite[1] < dist_max:
+            dist_max = centralite[1]
+            acteur_central = actor
     return acteur_central, dist_max
 
 
-def jsp():
+print(centre_hollywood(G))
+
+
+
+
+
+
+
+
+
+def est_proche():
     if u not in G.nodes:
         print(u," est un illustre inconnu")
         return None
