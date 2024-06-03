@@ -145,9 +145,6 @@ print(distance(test, "Anne Bancroft", "Robert Downey Jr."))
 # Q4
 
 
-
-
-
 def centralite_acteur(G, u):
     """
     Implémentation de l'algorithme de parcours en largeur (BFS) en utilisant une liste comme file d'attente.
@@ -183,15 +180,6 @@ def centralite_acteur(G, u):
     return actor_target, dist_max
 
 
-
-G = json_vers_nx("jeux de données réduits-20240506/data_100.txt")    
-
-
-start = time.time()
-print(centralite_acteur(G, "Al Pacino"))
-stop = time.time()
-print(stop-start)
-
 def centre_hollywood(G):
     acteur_central = ""
     dist_max = None
@@ -202,11 +190,6 @@ def centre_hollywood(G):
             acteur_central = actor
     return acteur_central, dist_max
 
-
-start = time.time()
-print(centre_hollywood(G))
-stop = time.time()
-print(stop-start)
 
 # Q5
 
