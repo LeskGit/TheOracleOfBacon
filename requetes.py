@@ -31,16 +31,11 @@ def json_vers_nx(chemin):
     transfo = suppression(transformation_dic(chemin))
     G = nx.Graph()
     for dico in transfo:
-        liste_temp = []
-        for actor in dico["cast"]:
-            liste_temp.append(actor)
-            if actor not in G.nodes():
-                G.add_node(actor)
-        for actor_temp in liste_temp:
-            for all_actor_temp in liste_temp:
-                if actor_temp != all_actor_temp and (actor_temp, all_actor_temp) not in G.edges():
-                    G.add_edge(actor_temp, all_actor_temp)
-                    
+        acteurs = dico["cast"]
+        G.add_nodes_from(acteurs)
+        for i in range(len(acteurs)):
+            for j in range(i + 1, len(acteurs)):
+                G.add_edge(acteurs[i], acteurs[j])
     return G
 
 # Q2
@@ -69,7 +64,7 @@ def collaborateurs_proches(G, u, k):
         return None
     collaborateurs = set()
     collaborateurs.add(u)
-    print(collaborateurs)
+    #print(collaborateurs)
     for i in range(k):
         collaborateurs_directs = set()
         for c in collaborateurs:
@@ -111,36 +106,49 @@ def distance_naive(G, u, v):
     
 def distance(G, u, v):
     """
-    Recherche en largeur pour déterminer la distance entre deux acteurs.
+    Fonction renvoyant la distance entre les acteurs u et v dans le graphe G.
     
-    Paramètres:
-        G: le graphe
-        u: le sommet de départ
-        v: le sommet d'arrivée
+    Paramètres :
+        G : le graphe
+        u : acteur de départ
+        v : acteur d'arrivée
         
-    Retourne:
-        La distance entre u et v, -1 si v n'est pas atteignable depuis u ou None si u ou v n'existe pas.
+    Retourne :
+        La distance entre u et v, None si l'un des acteurs est absent du graphe et -1 si l'acteurs v n'est pas atteignable depuis u.
     """
     if u not in G.nodes or v not in G.nodes:
         return None
-    
-    queue = [(u, 0)]  # stocke les sommets à explorer et leur distance par rapport au sommet de départ
-    visited = {u}     # Ensemble des sommets visités
-    
-    while queue: #tant que queue n'est pas vide
-        sommet_actuel, distance = queue.pop(0)  # Retire le premier élément de la file
-        if sommet_actuel == v:
-            return distance
-        for voisin in G.adj[sommet_actuel]:
-            if voisin not in visited:
-                visited.add(voisin)
-                queue.append((voisin, distance + 1))  # Ajoute le voisin à la file avec la distance + 1
-    
-    return -1  # Si v n'est pas atteignable depuis u
 
-test = json_vers_nx("jeux de données réduits-20240506/data_100.txt")
-print(distance_naive(test, "Anne Bancroft", "Robert Downey Jr."))
-print(distance(test, "Anne Bancroft", "Robert Downey Jr."))
+    distance = 0
+    visites = set()
+    file = [u]
+
+    while file:
+        distance += 1
+        file2 = []
+        for actor in file:
+            visites.add(actor)
+            for acteur in G.adj[actor]:
+                if acteur == v:
+                    return distance
+                elif acteur not in visites:
+                    file2.append(acteur)
+        file = file2
+    return -1
+
+G = json_vers_nx("jeux de données réduits-20240506/data_1000.txt")
+#start = time.time()
+#print(distance_naive(G, "Steven Bauer", "Robert Downey Jr."))
+#end = time.time()
+#print(end - start)
+#start2 = time.time()
+#print(distance(G, "Steven Bauer", "Robert Downey Jr."))
+#end2 = time.time()
+#print(end2 - start2)
+#start2 = time.time()
+#print(distance2(G, "Steven Bauer", "Robert Downey Jr."))
+#end2 = time.time()
+#print(end2 - start2)
 
 # Q4
 
@@ -193,7 +201,44 @@ def centre_hollywood(G):
 
 # Q5
 
-#def eloignement_max(G:nx.Graph):
+def eloignement_max(G: dict):
+    max_distance = -1
+    
+    # Fonction pour le BFS à partir d'un nœud source
+    def bfs(source):
+        visited = {source}
+        queue = [(source, 0)]
+        local_max_distance = 0
+        
+        while queue:
+            node, distance = queue.pop(0)
+            local_max_distance = max(local_max_distance, distance)
+            
+            for neighbor in G[node]:
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.append((neighbor, distance + 1))
+        
+        return local_max_distance
+    
+    # Parcours des nœuds pour trouver la distance maximale
+    visited_nodes = set()
+    
+    for node in G:
+        if node not in visited_nodes:
+            # BFS à partir du nœud non visité
+            component_max_distance = bfs(node)
+            max_distance = max(max_distance, component_max_distance)
+            visited_nodes.add(node)
+    
+    return max_distance
+
+
+start = time.time()
+print(eloignement_max(G))
+end = time.time()
+print(end - start)
+
 
 # Bonus
 
