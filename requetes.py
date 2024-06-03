@@ -153,54 +153,6 @@ G = json_vers_nx("jeux de données réduits-20240506/data_1000.txt")
 # Q4
 
 
-def graph_init(G):
-    """
-    Initialisation des attributs des nœuds et des arêtes du graphe.
-    
-    Paramètres:
-    G -- le graphe à initialiser
-    """
-    for v in G.nodes:
-        G.nodes[v]["color"] = "white"
-        G.nodes[v]["father"] = None
-    for u, v in G.edges:
-        G.edges[u, v]["color"] = "black"
-
-def visiter(G, v, w):
-    """
-    Met à jour les attributs d'un nœud lors de sa visite.
-    
-    Paramètres:
-    G -- le graphe contenant le nœud
-    v -- le nœud parent
-    w -- le nœud en cours de visite
-    """
-    G.nodes[w]["color"] = "red"
-    G.nodes[w]["father"] = v
-
-def arete_arbre(G, v, w):
-    """
-    Met à jour la couleur d'une arête pour indiquer qu'elle appartient à l'arbre de parcours.
-    
-    Paramètres:
-    G -- le graphe contenant l'arête
-    v -- le nœud de départ de l'arête
-    w -- le nœud d'arrivée de l'arête
-    """
-    G.edges[v, w]["color"] = "green"
-
-def traiter(G, v):
-    """
-    Met à jour les attributs d'un nœud après son traitement.
-    
-    Paramètres:
-    G -- le graphe contenant le nœud
-    v -- le nœud à traiter
-    """
-    G.nodes[v]["color"] = "green"
-
-
-
 def centralite_acteur(G, u):
     """
     Implémentation de l'algorithme de parcours en largeur (BFS) en utilisant une liste comme file d'attente.
@@ -217,30 +169,23 @@ def centralite_acteur(G, u):
     # Initialisation
     Q = []
     Q.append(u)
-    graph_init(G)
-    visiter(G, None, u)
     dist_max = 0
     actor_target = u
     father = {u: (None, 0)}
+    visite = set()
     
     # Boucle principale
     while len(Q) > 0:
         v = Q.pop(0)  # Défile le premier élément de la liste
         for w in G.adj[v]:
-            if G.nodes[w]["color"] == "white":
-                visiter(G, v, w)
-                arete_arbre(G, v, w)
+            if w not in visite:
+                visite.add(w)
                 father[w] = (v, father[v][1] + 1)
                 if father[w][1] > dist_max:
                     dist_max = father[w][1]
                     actor_target = w
                 Q.append(w)
-        traiter(G, v)
     return actor_target, dist_max
-
-
-    
-
 
 
 def centre_hollywood(G):
@@ -252,6 +197,7 @@ def centre_hollywood(G):
             dist_max = centralite[1]
             acteur_central = actor
     return acteur_central, dist_max
+
 
 # Q5
 
