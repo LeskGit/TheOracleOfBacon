@@ -28,6 +28,14 @@ def  menu_principal():
     match lettre:
         case "I":
             menu_choix()
+        case "G":
+            plt.figure(figsize=(12, 8))
+            pos = nx.spring_layout(data, k=0.15, scale = 2)  # Utilisation de spring_layout avec un paramètre de ressort k ajusté
+
+            nx.draw(data, pos, with_labels=True, node_color='lightblue', edge_color='gray', node_size=200, font_size=10)  # Taille de nœud et police réduites
+            plt.show()
+        case "C":
+              menu_centralite()
         case "Q":
             print("Adieu")
             return None
@@ -73,7 +81,29 @@ def menu_choix():
                 print("Saisi invalide")
                 menu_choix()
                 
-                
+def menu_centralite():
+    
+        print(" ______________________________\n"
+         "|==============================|\n"
+         "|          Centralité          |\n"
+         "|==============================|\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|     A - Centralité acteur    |\n"
+         "|     H - Centre Holywood      |\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|______________________________|\n")
+
+        lettre = input()
+        match lettre:
+             case "A":
+                  print("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule)")
+                  acteur = input()
+                  print(acteur , "à une centralité de ",rq.centralite_acteur(data, acteur))
+
                 
                 
 print(menu_principal())
