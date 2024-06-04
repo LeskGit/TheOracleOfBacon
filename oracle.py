@@ -24,7 +24,7 @@ def  menu_principal():
          "|                              |\n"
          "|______________________________|\n")
 
-    lettre = input()
+    lettre = input("Veuillez entrer une lettre majuscule ici : ")
     match lettre:
         case "I":
             menu_choix()
@@ -34,11 +34,18 @@ def  menu_principal():
 
             nx.draw(data, pos, with_labels=True, node_color='lightblue', edge_color='gray', node_size=200, font_size=10)  # Taille de nœud et police réduites
             plt.show()
+            menu_principal()
         case "C":
               menu_centralite()
+        case "V":
+              menu_collaborateur()
         case "Q":
             print("Adieu")
             return None
+        case _:
+                print("Saisi invalide")
+                menu_principal()
+        
     
     
 def menu_choix():
@@ -57,8 +64,8 @@ def menu_choix():
          "|                              |\n"
          "|______________________________|\n")
 
-        nb = input()
-        match nb:
+        lettre = input("Veuillez entrer une lettre majuscule ici : ")
+        match lettre:
             case "C":
                 data = rq.json_vers_nx("jeux de données réduits-20240506/data_100.txt")
                 print("Data initialisé à 100")
@@ -92,18 +99,49 @@ def menu_centralite():
          "|                              |\n"
          "|     A - Centralité acteur    |\n"
          "|     H - Centre Holywood      |\n"
+         "|     Q - Quitter              |\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|______________________________|\n")
+
+        lettre = input("Veuillez entrer une lettre majuscule ici : ")
+        match lettre:
+             case "A":
+                  print("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule)")
+                  acteur = input()
+                  print(acteur , "à une centralité de :",rq.centralite_acteur(data, acteur)[1])
+             case "H":
+                  print("Le centre d'Holywood est :", rq.centre_hollywood(data)[0])
+             case "Q":
+                menu_principal()
+             case _:
+                print("Saisi invalide")
+                menu_centralite()
+
+def menu_collaborateur():
+    
+        print(" ______________________________\n"
+         "|==============================|\n"
+         "|         Collaborateurs       |\n"
+         "|==============================|\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|                              |\n"
+         "| C - collaborateurs communs   |\n"
+         "| P - Collaborateurs proches   |\n"
          "|                              |\n"
          "|                              |\n"
          "|                              |\n"
          "|______________________________|\n")
 
-        lettre = input()
+        lettre = input("Veuillez entrer une lettre majuscule ici : ")
         match lettre:
-             case "A":
-                  print("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule)")
-                  acteur = input()
-                  print(acteur , "à une centralité de ",rq.centralite_acteur(data, acteur))
-
-                
+             case "C":
+                  actor1 = input()
+                  actor2 = input()
+                  print("Les collaborateurs de ", actor1, "et ", actor2, "sont : ", rq.collaborateurs_communs(data, actor1, actor2))
+             case "P":
+                  actor1 = input()
+                  print("Les collaborateurs de ", actor1, "sont : ", rq.collaborateurs_proches(data, actor1, 1))
                 
 print(menu_principal())
