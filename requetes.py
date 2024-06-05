@@ -6,6 +6,7 @@ Code diffusé aux étudiants de BUT1 dans le cadre de la SAE 2.02: Exploration a
 IUT d'Orleans BUT1 Informatique 2021-2022 
 """
 
+import json
 import networkx as nx
 import matplotlib.pyplot as plt
 import time
@@ -14,17 +15,15 @@ import time
 
 def transformation_dic(chemin):
     res = []
-    f = open(chemin, "r")
+    f = open(chemin, "r", encoding="utf-8")
     for ligne in f:
-        fic = eval(ligne) #transforme en dico
+        fic = json.loads(ligne.strip()) # transforme en dictionnaire
         res.append(fic) #création d'une liste de dictionnaires
     return res
 
 def suppression(liste):
     for dico in liste:
-        for i in range(len(dico["cast"])):
-            nom = dico["cast"][i].strip("[]")
-            dico["cast"][i] = nom.strip() #on enlève les espaces
+        dico["cast"] = [nom.strip("[]").strip() for nom in dico["cast"]]
     return liste
 
 def json_vers_nx(chemin):
@@ -136,20 +135,6 @@ def distance(G, u, v):
         file = file2
     return -1
 
-G = json_vers_nx("jeux de données réduits-20240506/data_1000.txt")
-#start = time.time()
-#print(distance_naive(G, "Steven Bauer", "Robert Downey Jr."))
-#end = time.time()
-#print(end - start)
-#start2 = time.time()
-#print(distance(G, "Steven Bauer", "Robert Downey Jr."))
-#end2 = time.time()
-#print(end2 - start2)
-#start2 = time.time()
-#print(distance2(G, "Steven Bauer", "Robert Downey Jr."))
-#end2 = time.time()
-#print(end2 - start2)
-
 # Q4
 
 
@@ -187,7 +172,6 @@ def centralite_acteur(G, u):
                 Q.append(w)
     return actor_target, dist_max
 
-
 def centre_hollywood(G):
     acteur_central = ""
     dist_max = None
@@ -201,44 +185,8 @@ def centre_hollywood(G):
 
 # Q5
 
-def eloignement_max(G: dict):
-    max_distance = -1
-    
-    # Fonction pour le BFS à partir d'un nœud source
-    def bfs(source):
-        visited = {source}
-        queue = [(source, 0)]
-        local_max_distance = 0
-        
-        while queue:
-            node, distance = queue.pop(0)
-            local_max_distance = max(local_max_distance, distance)
-            
-            for neighbor in G[node]:
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append((neighbor, distance + 1))
-        
-        return local_max_distance
-    
-    # Parcours des nœuds pour trouver la distance maximale
-    visited_nodes = set()
-    
-    for node in G:
-        if node not in visited_nodes:
-            # BFS à partir du nœud non visité
-            component_max_distance = bfs(node)
-            max_distance = max(max_distance, component_max_distance)
-            visited_nodes.add(node)
-    
-    return max_distance
-
-
-start = time.time()
-print(eloignement_max(G))
-end = time.time()
-print(end - start)
-
+def eloignement_max(G: nx.Graph):
+    pass
 
 # Bonus
 
@@ -251,3 +199,59 @@ print(end - start)
 #transfo = transformation("jeux de données réduits-20240506/data_100.txt")
 #graphe = transformation_graphe(transfo)
 #print(collaborateurs_communs(graphe, "Lew Horn", "Al Pacino"))
+
+
+
+# Fonctions optimisées avec des fonctions NetworkX :
+
+def distanceOpti(G, u, v):
+    return nx.shortest_path_length(G, u, v)
+
+def centralite_acteurOpti(graphe, acteur):
+    """
+    Calcule la centralité de l'acteur dans le graphe.
+
+    Paramètres:
+        graphe (nx.Graph): le graphe
+        acteur (Any): un acteur
+
+    Résultat:
+        int: la centralité de l'acteur
+    """
+    try:
+        # Fonction de comparaison pour trouver le chemin le plus long
+        def longueur_chemin(chemin):
+            return len(chemin)
+
+        # Trouve le chemin le plus long depuis l'acteur vers les autres acteurs
+        chemin_le_plus_long = max(nx.single_source_dijkstra_path(graphe, acteur).items(), key=longueur_chemin)
+        
+        # Retourne le premier et dernier acteur du chemin le plus long, ainsi que sa longueur - 1
+        return chemin_le_plus_long[1][0], chemin_le_plus_long[1][-1], len(chemin_le_plus_long[1]) - 1
+    except:
+        return None
+
+def centre_hollywoodOpti(graphe):
+    """
+    Trouve le centre du graphe.
+
+    Paramètres:
+        graphe (nx.Graph): le graphe
+
+    Résultat:
+        str : le sommet au centre du graphe
+    """
+    # Fonction de comparaison pour trouver le chemin le plus long
+    def longueur_chemin(chemin):
+        return len(chemin)
+
+    # Sélectionne un nœud arbitraire pour commencer les calculs
+    noeud_depart = list(graphe.nodes)[0]
+    
+    # Trouve le chemin le plus long depuis le nœud de départ vers tous les autres nœuds
+    chemin_le_plus_long = max(nx.single_source_dijkstra_path(graphe, centralite_acteurOpti(graphe, noeud_depart)[0]).items(), key=longueur_chemin)
+    
+    # Retourne l'élément central du chemin le plus long
+    return chemin_le_plus_long[1][len(chemin_le_plus_long[1]) // 2]
+
+
