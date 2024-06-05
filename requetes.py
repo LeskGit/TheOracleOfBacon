@@ -135,10 +135,6 @@ def distance(G, u, v):
         file = file2
     return -1
 
-def distanceOpti(G, u, v):
-    return nx.shortest_path_length(G, u, v)
-
-
 # Q4
 
 
@@ -242,25 +238,6 @@ def centre_hollywood(G):
 def eloignement_max(G: nx.Graph):
     pass
 
-
-#G = json_vers_nx("data.txt/data.txt")
-"""
-G = json_vers_nx("jeux de données réduits-20240506/data_100.txt")
-
-start = time.time()
-print((G))
-end = time.time()
-print(end - start)
-print("Voila")
-start = time.time()
-print((G))
-end = time.time()
-print(end - start)
-print("Fin")
-"""
-
-
-
 # Bonus
 
 #plt.figure(figsize=(12, 8))
@@ -272,3 +249,59 @@ print("Fin")
 #transfo = transformation("jeux de données réduits-20240506/data_100.txt")
 #graphe = transformation_graphe(transfo)
 #print(collaborateurs_communs(graphe, "Lew Horn", "Al Pacino"))
+
+
+
+# Fonctions optimisées avec des fonctions NetworkX :
+
+def distanceOpti(G, u, v):
+    return nx.shortest_path_length(G, u, v)
+
+def centralite_acteurOpti(graphe, acteur):
+    """
+    Calcule la centralité de l'acteur dans le graphe.
+
+    Paramètres:
+        graphe (nx.Graph): le graphe
+        acteur (Any): un acteur
+
+    Résultat:
+        int: la centralité de l'acteur
+    """
+    try:
+        # Fonction de comparaison pour trouver le chemin le plus long
+        def longueur_chemin(chemin):
+            return len(chemin)
+
+        # Trouve le chemin le plus long depuis l'acteur vers les autres acteurs
+        chemin_le_plus_long = max(nx.single_source_dijkstra_path(graphe, acteur).items(), key=longueur_chemin)
+        
+        # Retourne le premier et dernier acteur du chemin le plus long, ainsi que sa longueur - 1
+        return chemin_le_plus_long[1][0], chemin_le_plus_long[1][-1], len(chemin_le_plus_long[1]) - 1
+    except:
+        return None
+
+def centre_hollywoodOpti(graphe):
+    """
+    Trouve le centre du graphe.
+
+    Paramètres:
+        graphe (nx.Graph): le graphe
+
+    Résultat:
+        str : le sommet au centre du graphe
+    """
+    # Fonction de comparaison pour trouver le chemin le plus long
+    def longueur_chemin(chemin):
+        return len(chemin)
+
+    # Sélectionne un nœud arbitraire pour commencer les calculs
+    noeud_depart = list(graphe.nodes)[0]
+    
+    # Trouve le chemin le plus long depuis le nœud de départ vers tous les autres nœuds
+    chemin_le_plus_long = max(nx.single_source_dijkstra_path(graphe, centralite_acteurOpti(graphe, noeud_depart)[0]).items(), key=longueur_chemin)
+    
+    # Retourne l'élément central du chemin le plus long
+    return chemin_le_plus_long[1][len(chemin_le_plus_long[1]) // 2]
+
+
