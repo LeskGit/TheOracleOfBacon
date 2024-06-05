@@ -38,15 +38,28 @@ def json_vers_nx(chemin):
     return G
 
 # Q2
+
+def collaborateurs_communs2(G, u, v):
+    """
+    Trouve l'ensemble des acteurs/actrices ayant collaboré avec deux acteurs/actrices donnés.
+
+    Paramètres :
+        G (nx.Graph): le graphe
+        acteur1 (str): le premier acteur/actrice
+        acteur2 (str): le deuxième acteur/actrice
+
+    Retourne :
+        set: l'ensemble des acteurs/actrices ayant collaboré avec les deux acteurs/actrices donnés.
+    """
+    # Obtention des voisins de chaque acteur
+    voisins_acteur1 = set(G.adj[u])
+    voisins_acteur2 = set(G.adj[v])
     
-def collaborateurs_communs(G, u, v):
-    ensemble_acteurs = set()
-    collab_u = collaborateurs_proches(G, u, 1)
-    collab_v = collaborateurs_proches(G, v, 1)
-    for actor in collab_u:
-        if actor in v:
-            ensemble_acteurs.add(actor)
-    return ensemble_acteurs
+    # Calcul de l'ensemble des collaborateurs communs grâce à la fonction "union"
+    collaborateurs_communs = voisins_acteur1.union(voisins_acteur2)
+    
+    return collaborateurs_communs
+
 
 # Q3
 
