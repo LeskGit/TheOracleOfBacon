@@ -185,21 +185,58 @@ def centre_hollywood(G):
 
 # Q5
 
-def eloignement_max(G: nx.Graph):
-    pass
+def bfs_distance_maximale(G, noeud_depart):
+    """
+    Effectue un parcours en largeur (BFS) pour trouver le nœud le plus éloigné
+    à partir d'un nœud de départ et la distance maximale.
+
+    Paramètres :
+        G : le graphe sous forme de dictionnaire où les clés sont les nœuds
+            et les valeurs sont les listes de voisins de chaque nœud.
+        noeud_depart : le nœud de départ pour le BFS
+
+    Retourne :
+        Un tuple (dernier_noeud, distance_max) où dernier_noeud est le nœud le plus éloigné
+        du noeud_depart et distance_max est la distance jusqu'à ce nœud.
+    """
+    visites = set()
+    file = [(noeud_depart, 0)]
+    dernier_noeud, distance_max = noeud_depart, 0
+
+    while file:
+        noeud_courant, distance_courante = file.pop(0)
+        if noeud_courant not in visites:
+            visites.add(noeud_courant)
+            dernier_noeud, distance_max = noeud_courant, distance_courante
+            for voisin in G[noeud_courant]:
+                if voisin not in visites:
+                    file.append((voisin, distance_courante + 1))
+    
+    return dernier_noeud, distance_max
+
+def eloignement_max(G):
+    """
+    Trouve la distance maximale entre toutes les paires de nœuds dans le graphe G.
+
+    Paramètres :
+        G : le graphe sous forme de dictionnaire où les clés sont les nœuds
+            et les valeurs sont les listes de voisins de chaque nœud.
+
+    Retourne :
+        La distance maximale entre toutes les paires de nœuds dans le graphe.
+    """
+    distance_maximale = 0
+    
+    for noeud in G:
+        u, _ = bfs_distance_maximale(G, noeud)
+        _, distance = bfs_distance_maximale(G, u)
+        distance_maximale = max(distance_maximale, distance)
+    
+    return distance_maximale
 
 # Bonus
 
-#plt.figure(figsize=(12, 8))
-#pos = nx.spring_layout(test, k=0.15, scale = 2)  # Utilisation de spring_layout avec un paramètre de ressort k ajusté
-
-#nx.draw(test, pos, with_labels=True, node_color='lightblue', edge_color='gray', node_size=200, font_size=10)  # Taille de nœud et police réduites
-#plt.show()
-
-#transfo = transformation("jeux de données réduits-20240506/data_100.txt")
-#graphe = transformation_graphe(transfo)
-#print(collaborateurs_communs(graphe, "Lew Horn", "Al Pacino"))
-
+#def centralite_groupe(G,S):
 
 
 # Fonctions optimisées avec des fonctions NetworkX :
@@ -255,3 +292,54 @@ def centre_hollywoodOpti(graphe):
     return chemin_le_plus_long[1][len(chemin_le_plus_long[1]) // 2]
 
 
+def bfs_distance_maximaleOpti(G, noeud_depart):
+    """
+    Effectue un parcours en largeur (BFS) pour trouver le nœud le plus éloigné
+    à partir d'un nœud de départ et la distance maximale.
+
+    Paramètres :
+        G : le graphe
+        noeud_depart : le nœud de départ pour le BFS
+
+    Retourne :
+        Un tuple (noeud_final, distance_max) où noeud_final est le nœud le plus éloigné
+        du noeud_depart et distance_max est la distance jusqu'à ce nœud.
+    """
+    distances = nx.single_source_shortest_path_length(G, noeud_depart)
+    noeud_final = max(distances, key=distances.get)
+    distance_max = distances[noeud_final]
+    return noeud_final, distance_max
+
+
+
+def eloignement_maxOpti(G: nx.Graph) -> int:
+    """
+    Trouve la distance maximale entre toutes les paires de nœuds dans le graphe G.
+
+    Paramètres :
+        G : le graphe non pondéré, non dirigé
+
+    Retourne :
+        La distance maximale entre toutes les paires de nœuds dans le graphe.
+    """
+    distance_maximale = 0
+    vus = set()
+    
+    for noeud in G.nodes:
+        if noeud not in vus:
+            composante_connexe = nx.node_connected_component(G, noeud)
+            vus.update(composante_connexe)
+            # Étape 1 : Trouver le nœud le plus éloigné de n'importe quel nœud de la composante
+            u, _ = bfs_distance_maximaleOpti(G, noeud)
+            # Étape 2 : Trouver le nœud le plus éloigné de u
+            _, distance = bfs_distance_maximaleOpti(G, u)
+            # Mettre à jour la distance maximale trouvée
+            distance_maximale = max(distance_maximale, distance)
+    
+    return distance_maximale
+
+G = json_vers_nx("jeux de données réduits-20240506/data_100.txt")
+start = time.time()
+print(eloignement_maxOpti(G))
+end = time.time()
+print(end - start)
