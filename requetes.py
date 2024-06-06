@@ -247,7 +247,7 @@ def distance(G, u, v):
 # Q4
 
 
-def centralite_acteur(G, u):
+def centralite(G, u):
     """
     Implémentation de l'algorithme de parcours en largeur (BFS) en utilisant une liste comme file d'attente.
 
@@ -299,7 +299,7 @@ def centre_hollywood(G):
     acteur_central = ""
     dist_max = None
     for actor in G.nodes():
-        centralite = centralite_acteur(G, actor)
+        centralite = centralite(G, actor)
         if dist_max is None or centralite[1] < dist_max:
             dist_max = centralite[1]
             acteur_central = actor
@@ -338,7 +338,7 @@ def bfs_distance_maximale(G, noeud_depart):
     
     return dernier_noeud, distance_max
 
-def eloignement_max(G):
+def eloignement_max(G:nx.Graph):
     """
     Trouve la distance maximale entre toutes les paires de nœuds dans le graphe G.
 
