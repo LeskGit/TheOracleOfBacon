@@ -14,27 +14,61 @@ import time
 # Q1
 
 def transformation_dic(chemin):
+    """
+    Fonction pour transformer un fichier JSON en une liste de dictionnaires.
+    
+    Paramètre :
+        chemin : chemin du fichier JSON
+        
+    Retourne :
+        Une liste de dictionnaires représentant les données du fichier JSON.
+        
+    Complexité asymptotique : O(n), où n est le nombre de lignes dans le fichier.
+    """
     res = []
-    f = open(chemin, "r", encoding="utf-8")
-    for ligne in f:
-        fic = json.loads(ligne.strip()) # transforme en dictionnaire
-        res.append(fic) #création d'une liste de dictionnaires
+    with open(chemin, "r", encoding="utf-8") as f:
+        for ligne in f:
+            fic = json.loads(ligne.strip())  # transforme chaque ligne en dictionnaire
+            res.append(fic)  # ajoute le dictionnaire à la liste
     return res
 
 def suppression(liste):
+    """
+    Fonction pour nettoyer les noms des acteurs en supprimant les crochets et les espaces superflus.
+    
+    Paramètre :
+        liste : liste de dictionnaires contenant les informations des films
+        
+    Retourne :
+        La liste de dictionnaires mise à jour avec les noms nettoyés.
+        
+    Complexité asymptotique : O(n * m), où n est le nombre de dictionnaires et m est le nombre d'acteurs par dictionnaire.
+    """
     for dico in liste:
+        # Nettoyage des noms des acteurs
         dico["cast"] = [nom.strip("[]").strip() for nom in dico["cast"]]
     return liste
 
 def json_vers_nx(chemin):
+    """
+    Fonction pour transformer les données JSON en un graphe NetworkX.
+    
+    Paramètre :
+        chemin : chemin du fichier JSON
+        
+    Retourne :
+        Un graphe NetworkX représentant les relations entre les acteurs.
+        
+    Complexité asymptotique : O(n * m^2), où n est le nombre de films et m est le nombre d'acteurs par film.
+    """
     transfo = suppression(transformation_dic(chemin))
     G = nx.Graph()
     for dico in transfo:
         acteurs = dico["cast"]
-        G.add_nodes_from(acteurs)
+        G.add_nodes_from(acteurs)  # ajout des acteurs comme noeuds
         for i in range(len(acteurs)):
             for j in range(i + 1, len(acteurs)):
-                G.add_edge(acteurs[i], acteurs[j])
+                G.add_edge(acteurs[i], acteurs[j])  # ajout des arêtes entre les acteurs ayant joué ensemble
     return G
 
 # Q2
@@ -42,28 +76,29 @@ def json_vers_nx(chemin):
 def collaborateurs_communs(G, u, v):
     """
     Trouve l'ensemble des acteurs/actrices ayant collaboré avec deux acteurs/actrices donnés.
-
+    
     Paramètres :
         G (nx.Graph): le graphe
-        acteur1 (str): le premier acteur/actrice
-        acteur2 (str): le deuxième acteur/actrice
-
+        u (str): le premier acteur/actrice
+        v (str): le deuxième acteur/actrice
+        
     Retourne :
         set: l'ensemble des acteurs/actrices ayant collaboré avec les deux acteurs/actrices donnés.
+        
+    Complexité asymptotique : O(d1 + d2), où d1 est le degré de u et d2 est le degré de v.
     """
     # Obtention des voisins de chaque acteur
     voisins_acteur1 = set(G.adj[u])
     voisins_acteur2 = set(G.adj[v])
     
-    # Calcul de l'ensemble des collaborateurs communs grâce à la fonction "union"
-    collaborateurs_communs = voisins_acteur1.union(voisins_acteur2)
+    # Calcul de l'ensemble des collaborateurs communs grâce à la fonction "intersection"
+    collaborateurs_communs = voisins_acteur1.intersection(voisins_acteur2)
     
     return collaborateurs_communs
 
-#Bonus de collaborateurs_communs
-
 def collaborateurs_communs_Bonus(G, u, k):
-    """Fonction renvoyant le sous-graphe induit par l'acteur u et tous les acteurs à distance au plus k de u dans le graphe G.
+    """
+    Fonction renvoyant le sous-graphe induit par l'acteur u et tous les acteurs à distance au plus k de u dans le graphe G.
     
     Paramètres:
         G: le graphe
@@ -72,6 +107,8 @@ def collaborateurs_communs_Bonus(G, u, k):
         
     Retourne:
         Le sous-graphe induit par u et tous les sommets à distance k de u, ou None si u est absent du graphe.
+        
+    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes explorées jusqu'à la distance k.
     """
     if u not in G.nodes:
         print(u, "est un illustre inconnu")
@@ -86,39 +123,46 @@ def collaborateurs_communs_Bonus(G, u, k):
             for voisin in G.adj[c]:
                 if voisin not in collaborateurs:
                     collaborateurs_directs.add(voisin)
+        # Union des nouveaux collaborateurs directs avec l'ensemble existant
         collaborateurs = collaborateurs.union(collaborateurs_directs)
     
-    # Créer le sous-graphe 
+    # Créer le sous-graphe induit
     sous_graphe = G.subgraph(collaborateurs).copy()
     return sous_graphe
-
 
 # Q3
 
 def collaborateurs_proches(G, u, k):
-    """Fonction renvoyant l'ensemble des acteurs à distance au plus k de l'acteur u dans le graphe G. La fonction renvoie None si u est absent du graphe.
+    """
+    Fonction renvoyant l'ensemble des acteurs à distance au plus k de l'acteur u dans le graphe G. 
+    La fonction renvoie None si u est absent du graphe.
     
-    Parametres:
+    Paramètres:
         G: le graphe
         u: le sommet de départ
         k: la distance depuis u
+        
+    Retourne:
+        Un ensemble contenant les acteurs à distance au plus k de u.
+        
+    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes explorées jusqu'à la distance k.
     """
     if u not in G.nodes:
-        print(u,"est un illustre inconnu")
+        print(u, "est un illustre inconnu")
         return None
     collaborateurs = set()
     collaborateurs.add(u)
-    #print(collaborateurs)
     for i in range(k):
         collaborateurs_directs = set()
         for c in collaborateurs:
             for voisin in G.adj[c]:
                 if voisin not in collaborateurs:
                     collaborateurs_directs.add(voisin)
+        # Union des nouveaux collaborateurs directs avec l'ensemble existant
         collaborateurs = collaborateurs.union(collaborateurs_directs)
     return collaborateurs
 
-def est_proche(G, u, v, k=24):
+def est_proche(G, u, v, k=1):
     """
     Fonction qui détermine si l'acteur v se trouve à distance k de l'acteur u dans le graphe G.
     
@@ -130,17 +174,33 @@ def est_proche(G, u, v, k=24):
         
     Retourne:
         True si v se trouve à distance k de u, False sinon.
+        
+    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes explorées jusqu'à la distance k.
     """
     collaborateurs = collaborateurs_proches(G, u, k)
     return v in collaborateurs
 
 def distance_naive(G, u, v):
+    """
+    Fonction renvoyant la distance entre les acteurs u et v dans le graphe G.
+    Cette version est volontairement non optimisée.
+    
+    Paramètres :
+        G : le graphe
+        u : acteur de départ
+        v : acteur d'arrivée
+        
+    Retourne :
+        La distance entre u et v, None si l'un des acteurs est absent du graphe, et -1 si v n'est pas atteignable depuis u.
+        
+    Complexité asymptotique : O(n^2 + nm), où n est le nombre de sommets et m est le nombre d'arêtes.
+    """
     if u not in G.nodes or v not in G.nodes:
         return None
     distance = 0
     i = 0
     collab = collaborateurs_proches(G, u, distance)
-    while v not in collab and i<len(G):
+    while v not in collab and i < len(G):
         distance += 1
         i += 1
         collab = collaborateurs_proches(G, u, distance)
@@ -150,7 +210,7 @@ def distance_naive(G, u, v):
     
 def distance(G, u, v):
     """
-    Fonction renvoyant la distance entre les acteurs u et v dans le graphe G.
+    Fonction renvoyant la distance entre les acteurs u et v dans le graphe G en utilisant une approche par file (BFS).
     
     Paramètres :
         G : le graphe
@@ -158,7 +218,9 @@ def distance(G, u, v):
         v : acteur d'arrivée
         
     Retourne :
-        La distance entre u et v, None si l'un des acteurs est absent du graphe et -1 si l'acteurs v n'est pas atteignable depuis u.
+        La distance entre u et v, None si l'un des acteurs est absent du graphe, et -1 si v n'est pas atteignable depuis u.
+        
+    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes.
     """
     if u not in G.nodes or v not in G.nodes:
         return None
@@ -177,8 +239,10 @@ def distance(G, u, v):
                     return distance
                 elif acteur not in visites:
                     file2.append(acteur)
+        # Remplacement de la file actuelle par la nouvelle file
         file = file2
     return -1
+
 
 # Q4
 
@@ -186,17 +250,19 @@ def distance(G, u, v):
 def centralite_acteur(G, u):
     """
     Implémentation de l'algorithme de parcours en largeur (BFS) en utilisant une liste comme file d'attente.
-    
+
     Paramètres:
-    G -- le graphe à parcourir
-    u -- le sommet de départ du parcours
-    
+        G -- le graphe à parcourir
+        u -- le sommet de départ du parcours
+
     Valeur de retour:
-    actor_target -- le nœud le plus éloigné du nœud de départ
-    dist_max -- la distance maximale à partir du nœud de départ
+        actor_target -- le nœud le plus éloigné du nœud de départ
+        dist_max -- la distance maximale à partir du nœud de départ
+
+    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes.
     """
     
-    # Initialisation
+    # Initialisation de la file d'attente et des variables de suivi
     Q = []
     Q.append(u)
     dist_max = 0
@@ -204,7 +270,7 @@ def centralite_acteur(G, u):
     father = {u: (None, 0)}
     visite = set()
     
-    # Boucle principale
+    # Boucle principale de BFS
     while len(Q) > 0:
         v = Q.pop(0)  # Défile le premier élément de la liste
         for w in G.adj[v]:
@@ -218,6 +284,18 @@ def centralite_acteur(G, u):
     return actor_target, dist_max
 
 def centre_hollywood(G):
+    """
+    Trouve l'acteur central d'Hollywood en utilisant la centralité des acteurs.
+
+    Paramètres:
+        G -- le graphe représentant les relations entre les acteurs
+
+    Retourne:
+        acteur_central -- l'acteur ayant la plus petite distance maximale à partir de n'importe quel autre acteur
+        dist_max -- la distance maximale à partir de cet acteur
+
+    Complexité asymptotique : O(n * (n + m)), où n est le nombre de sommets et m est le nombre d'arêtes.
+    """
     acteur_central = ""
     dist_max = None
     for actor in G.nodes():
@@ -226,7 +304,6 @@ def centre_hollywood(G):
             dist_max = centralite[1]
             acteur_central = actor
     return acteur_central, dist_max
-
 
 # Q5
 
@@ -243,6 +320,8 @@ def bfs_distance_maximale(G, noeud_depart):
     Retourne :
         Un tuple (dernier_noeud, distance_max) où dernier_noeud est le nœud le plus éloigné
         du noeud_depart et distance_max est la distance jusqu'à ce nœud.
+
+    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes.
     """
     visites = set()
     file = [(noeud_depart, 0)]
@@ -269,6 +348,8 @@ def eloignement_max(G):
 
     Retourne :
         La distance maximale entre toutes les paires de nœuds dans le graphe.
+
+    Complexité asymptotique : O(n * (n + m)), où n est le nombre de sommets et m est le nombre d'arêtes.
     """
     distance_maximale = 0
     
@@ -279,14 +360,27 @@ def eloignement_max(G):
     
     return distance_maximale
 
+
 # Bonus
 
 #def centralite_groupe(G,S):
 
-
 # Fonctions optimisées avec des fonctions NetworkX :
 
 def distanceOpti(G, u, v):
+    """
+    Calcule la distance la plus courte entre les nœuds u et v dans le graphe G en utilisant l'algorithme de Dijkstra.
+
+    Paramètres:
+        G : le graphe
+        u : acteur de départ
+        v : acteur d'arrivée
+
+    Retourne:
+        int : la distance la plus courte entre u et v
+
+    Complexité asymptotique : O(n log n + m), où n est le nombre de sommets et m est le nombre d'arêtes.
+    """
     return nx.shortest_path_length(G, u, v)
 
 def centralite_acteurOpti(graphe, acteur):
@@ -298,7 +392,9 @@ def centralite_acteurOpti(graphe, acteur):
         acteur (Any): un acteur
 
     Résultat:
-        int: la centralité de l'acteur
+        tuple : le premier et dernier acteur du chemin le plus long, ainsi que la longueur de ce chemin
+
+    Complexité asymptotique : O(n log n + m), où n est le nombre de sommets et m est le nombre d'arêtes.
     """
     try:
         # Fonction de comparaison pour trouver le chemin le plus long
@@ -322,6 +418,8 @@ def centre_hollywoodOpti(graphe):
 
     Résultat:
         str : le sommet au centre du graphe
+
+    Complexité asymptotique : O(n (n log n + m)), où n est le nombre de sommets et m est le nombre d'arêtes.
     """
     # Fonction de comparaison pour trouver le chemin le plus long
     def longueur_chemin(chemin):
@@ -336,7 +434,6 @@ def centre_hollywoodOpti(graphe):
     # Retourne l'élément central du chemin le plus long
     return chemin_le_plus_long[1][len(chemin_le_plus_long[1]) // 2]
 
-
 def bfs_distance_maximaleOpti(G, noeud_depart):
     """
     Effectue un parcours en largeur (BFS) pour trouver le nœud le plus éloigné
@@ -349,13 +446,13 @@ def bfs_distance_maximaleOpti(G, noeud_depart):
     Retourne :
         Un tuple (noeud_final, distance_max) où noeud_final est le nœud le plus éloigné
         du noeud_depart et distance_max est la distance jusqu'à ce nœud.
+
+    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes.
     """
     distances = nx.single_source_shortest_path_length(G, noeud_depart)
     noeud_final = max(distances, key=distances.get)
     distance_max = distances[noeud_final]
     return noeud_final, distance_max
-
-
 
 def eloignement_maxOpti(G: nx.Graph) -> int:
     """
@@ -366,12 +463,15 @@ def eloignement_maxOpti(G: nx.Graph) -> int:
 
     Retourne :
         La distance maximale entre toutes les paires de nœuds dans le graphe.
+
+    Complexité asymptotique : O(n * (n + m)), où n est le nombre de sommets et m est le nombre d'arêtes.
     """
     distance_maximale = 0
     vus = set()
     
     for noeud in G.nodes:
         if noeud not in vus:
+            # Trouver la composante connexe contenant le noeud
             composante_connexe = nx.node_connected_component(G, noeud)
             vus.update(composante_connexe)
             # Étape 1 : Trouver le nœud le plus éloigné de n'importe quel nœud de la composante
