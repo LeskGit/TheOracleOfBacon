@@ -39,7 +39,7 @@ def json_vers_nx(chemin):
 
 # Q2
 
-def collaborateurs_communs2(G, u, v):
+def collaborateurs_communs(G, u, v):
     """
     Trouve l'ensemble des acteurs/actrices ayant collaboré avec deux acteurs/actrices donnés.
 
@@ -59,6 +59,38 @@ def collaborateurs_communs2(G, u, v):
     collaborateurs_communs = voisins_acteur1.union(voisins_acteur2)
     
     return collaborateurs_communs
+
+#Bonus de collaborateurs_communs
+
+def collaborateurs_communs_Bonus(G, u, k):
+    """Fonction renvoyant le sous-graphe induit par l'acteur u et tous les acteurs à distance au plus k de u dans le graphe G.
+    
+    Paramètres:
+        G: le graphe
+        u: le sommet de départ
+        k: la distance depuis u
+        
+    Retourne:
+        Le sous-graphe induit par u et tous les sommets à distance k de u, ou None si u est absent du graphe.
+    """
+    if u not in G.nodes:
+        print(u, "est un illustre inconnu")
+        return None
+
+    collaborateurs = set()
+    collaborateurs.add(u)
+    
+    for i in range(k):
+        collaborateurs_directs = set()
+        for c in collaborateurs:
+            for voisin in G.adj[c]:
+                if voisin not in collaborateurs:
+                    collaborateurs_directs.add(voisin)
+        collaborateurs = collaborateurs.union(collaborateurs_directs)
+    
+    # Créer le sous-graphe 
+    sous_graphe = G.subgraph(collaborateurs).copy()
+    return sous_graphe
 
 
 # Q3
