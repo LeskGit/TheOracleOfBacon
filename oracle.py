@@ -39,6 +39,8 @@ def  menu_principal():
               menu_centralite()
         case "V":
               menu_collaborateur()
+        case "D":
+              menu_distance()
         case "Q":
             print("Adieu")
             return None
@@ -55,7 +57,7 @@ def menu_choix():
          "|       Choix des données      |\n"
          "|==============================|\n"
          "|                              |\n"
-         "|   C - 100 (par défault)      |\n"
+         "|   C - 100                    |\n"
          "|   M - 1000                   |\n"
          "|   D - 10 000                 |\n"
          "|   F - Toute les données      |\n"
@@ -96,7 +98,7 @@ def menu_centralite():
          "|==============================|\n"
          "|                              |\n"
          "|                              |\n"
-         "|                              |\n"
+         "|     I - Information          |\n"
          "|     A - Centralité acteur    |\n"
          "|     H - Centre Holywood      |\n"
          "|     Q - Quitter              |\n"
@@ -112,6 +114,13 @@ def menu_centralite():
                   print(acteur , "à une centralité de :",rq.centralite_acteur(data, acteur)[1])
              case "H":
                   print("Le centre d'Holywood est :", rq.centre_hollywood(data)[0])
+             case "I":
+                 print("=============================INFORMATION=========================================")
+                 print("Voici les informations des différentes fonctions présentes dans ce menu : ")
+                 print("- Centralité_acteur : Prend en paramètre 1 acteurs, renvoie sa centralité.")
+                 print("- Centre_Holywood  : Renvoie l'acteur le plus central du graphe.")
+                 print("=================================================================================")
+                 menu_centralite()
              case "Q":
                 menu_principal()
              case _:
@@ -126,10 +135,10 @@ def menu_collaborateur():
          "|==============================|\n"
          "|                              |\n"
          "|                              |\n"
-         "|                              |\n"
-         "| C - collaborateurs communs   |\n"
+         "| I - Information              |\n"
+         "| C - Collaborateurs communs   |\n"
          "| P - Collaborateurs proches   |\n"
-         "|                              |\n"
+         "| Q - Quitter                  |\n"
          "|                              |\n"
          "|                              |\n"
          "|______________________________|\n")
@@ -143,5 +152,90 @@ def menu_collaborateur():
              case "P":
                   actor1 = input()
                   print("Les collaborateurs de ", actor1, "sont : ", rq.collaborateurs_proches(data, actor1, 1))
+             case "Q":
+                menu_principal()
+             case "I":
+                print("=============================INFORMATION=========================================")
+                print("Voici les informations des différentes fonctions présentes dans ce menu : ")
+                print("- Collaborateurs_communs : Prend en paramètre 2 acteurs, \n renvoie l'ensemble de leurs collaborateurs en communs.")
+                print("- Collaborateurs_proches : Prend en paramètre 1 acteurs et une distance k, \n renvoie l'ensemble des acteurs à distance au plus k de l'acteur u.")
+                print("=================================================================================")
+                menu_collaborateur()
+             case _:
+                print("Saisi invalide")
+                menu_collaborateur()
+
+def menu_init():
+    
+        print(" ______________________________\n"
+         "|==============================|\n"
+         "| Veuillez choisir des données |\n"
+         "|==============================|\n"
+         "|                              |\n"
+         "|   C - 100                    |\n"
+         "|   M - 1000                   |\n"
+         "|   D - 10 000                 |\n"
+         "|   F - Toute les données      |\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|______________________________|\n")
+
+        lettre = input("Veuillez entrer une lettre majuscule ici : ")
+        match lettre:
+            case "C":
+                data = rq.json_vers_nx("jeux de données réduits-20240506/data_100.txt")
+                print("Data initialisé à 100")
+                menu_principal()
+            case "M":
+                data = rq.json_vers_nx("jeux de données réduits-20240506/data_1000.txt")
+                print("Data initialisé à 1000")
+                menu_principal()
+            case "D":
+                data = rq.json_vers_nx("jeux de données réduits-20240506/data_10000.txt")
+                print("Data initialisé à 10 000")
+                menu_principal()
+            case "F":
+                data = rq.json_vers_nx("data.txt/data.txt")
+                print("Data initialisé à FULL")
+                menu_principal()
+            case _:
+                print("Saisi invalide")
+                menu_choix()
+
+def menu_distance():
+    
+        print(" ______________________________\n"
+         "|==============================|\n"
+         "|           Distance           |\n"
+         "|==============================|\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|      I - Information         |\n"
+         "|      D - Distance            |\n"
+         "|      Q - Quitter             |\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|                              |\n"
+         "|______________________________|\n")
+
+        lettre = input("Veuillez entrer une lettre majuscule ici : ")
+        match lettre:
+            case "I":
+                print("=============================INFORMATION=========================================")
+                print("Voici les informations des différentes fonctions présentes dans ce menu : ")
+                print("- Distance : Prends en paramètre 2 acteurs et retourne la distance les séparants")
+                print("=================================================================================")
+                menu_distance()
+            case "D":
+                acteur1 = input("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule)")
+                acteur2 = input("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule)")
+                print("La distance entre ces deux acteurs est : ", rq.distance(data, acteur1, acteur2))
+                menu_distance()
+            case "Q":
+                menu_principal()
+            case _:
+                print("Saisi invalide")
+                menu_distance()
                 
-print(menu_principal())
+print(menu_init())
