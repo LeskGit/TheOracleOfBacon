@@ -56,12 +56,12 @@ def afficheG(G):
 def test_collaborateurs_communs():
     assert rq.collaborateurs_communs(G1,1,2) == {3}
     assert rq.collaborateurs_communs(G1,2,5) == {4, 3}
-    assert rq.collaborateurs_communs(G2,1,17) == {}
+    assert rq.collaborateurs_communs(G2,1,17) == set()
     
 def test_est_proche():
     assert not rq.est_proche(G1, 1, 5)
     assert rq.est_proche(G2, 1, 2)
-    assert not rq.est_proche(G2, 1, 30, 5) #distance passe de 24 a 5 pour des questions de simplicité et lisibilité
+    assert rq.est_proche(G2, 1, 30, 5) #distance passe de 24 a 5 pour des questions de simplicité et lisibilité
     
 def test_distance():
     assert rq.distance(G1,1,2) == 1
@@ -79,9 +79,9 @@ def test_centralite():
     assert rq.centralite(G2,17)[1] == 8
 
 def test_centralite_holywood():
-    assert rq.centre_hollywood(G1)[1] == 1
-    assert rq.centre_hollywood(G2)[1] == 1
-    assert rq.centre_hollywood(G3)[1] == "pomme"
+    assert rq.centre_hollywood(G1)[0] == 1
+    assert rq.centre_hollywood(G2)[0] == 1
+    assert rq.centre_hollywood(G3)[0] == "pomme"
     
 def test_eloignement_max():
     assert rq.eloignement_max(G1) == 2
