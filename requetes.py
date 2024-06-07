@@ -307,38 +307,7 @@ def centre_hollywood(G):
 
 # Q5
 
-def bfs_distance_maximale(G, noeud_depart):
-    """
-    Effectue un parcours en largeur (BFS) pour trouver le nœud le plus éloigné
-    à partir d'un nœud de départ et la distance maximale.
-
-    Paramètres :
-        G : le graphe sous forme de dictionnaire où les clés sont les nœuds
-            et les valeurs sont les listes de voisins de chaque nœud.
-        noeud_depart : le nœud de départ pour le BFS
-
-    Retourne :
-        Un tuple (dernier_noeud, distance_max) où dernier_noeud est le nœud le plus éloigné
-        du noeud_depart et distance_max est la distance jusqu'à ce nœud.
-
-    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes.
-    """
-    visites = set()
-    file = [(noeud_depart, 0)]
-    dernier_noeud, distance_max = noeud_depart, 0
-
-    while file:
-        noeud_courant, distance_courante = file.pop(0)
-        if noeud_courant not in visites:
-            visites.add(noeud_courant)
-            dernier_noeud, distance_max = noeud_courant, distance_courante
-            for voisin in G[noeud_courant]:
-                if voisin not in visites:
-                    file.append((voisin, distance_courante + 1))
-    
-    return dernier_noeud, distance_max
-
-def eloignement_max(G:nx.Graph):
+def eloignement_max(G: nx.Graph):
     """
     Trouve la distance maximale entre toutes les paires de nœuds dans le graphe G.
 
@@ -354,14 +323,12 @@ def eloignement_max(G:nx.Graph):
     distance_maximale = 0
     
     for noeud in G:
-        u, _ = bfs_distance_maximale(G, noeud)
-        _, distance = bfs_distance_maximale(G, u)
+        # Utilisation de la fonction centralite pour trouver le nœud le plus éloigné et la distance maximale
+        u, _ = centralite(G, noeud)
+        _, distance = centralite(G, u)
         distance_maximale = max(distance_maximale, distance)
     
     return distance_maximale
-
-
-# Bonus
 
 #def centralite_groupe(G,S):
 

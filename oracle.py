@@ -191,7 +191,7 @@ def menu_init():
          "|   C - 100                    |\n"
          "|   M - 1000                   |\n"
          "|   D - 10 000                 |\n"
-         "|   F - Toute les données      |\n"
+         "|   F - Toutes les données     |\n"
          "|                              |\n"
          "|                              |\n"
          "|                              |\n"
@@ -201,19 +201,19 @@ def menu_init():
         match lettre:
             case "C":
                 data = rq.json_vers_nx("jeux de données réduits-20240506/data_100.txt")
-                print("Data initialisé à 100")
+                print("Data initialisée à 100")
                 menu_principal()
             case "M":
                 data = rq.json_vers_nx("jeux de données réduits-20240506/data_1000.txt")
-                print("Data initialisé à 1000")
+                print("Data initialisée à 1000")
                 menu_principal()
             case "D":
                 data = rq.json_vers_nx("jeux de données réduits-20240506/data_10000.txt")
-                print("Data initialisé à 10 000")
+                print("Data initialisée à 10 000")
                 menu_principal()
             case "F":
                 data = rq.json_vers_nx("data.txt/data.txt")
-                print("Data initialisé à FULL")
+                print("Data initialisée à FULL")
                 menu_principal()
             case _:
                 print("Saisi invalide")
