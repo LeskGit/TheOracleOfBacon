@@ -1,5 +1,67 @@
-#Pour la transformation en Graphe la première version ne contenait pas de méthode "suppression". La deuxième ne contenait pas, lors de l'ouverture du 
-#fichier, de choix de l'encoding
+import json
+import networkx as nx
+import matplotlib.pyplot as plt
+import time
+
+#Pour tester les temps
+
+def transformation_dic(chemin):
+    """
+    Fonction pour transformer un fichier JSON en une liste de dictionnaires.
+    
+    Paramètre :
+        chemin : chemin du fichier JSON
+        
+    Retourne :
+        Une liste de dictionnaires représentant les données du fichier JSON.
+        
+    Complexité asymptotique : O(n), où n est le nombre de lignes dans le fichier.
+    """
+    res = []
+    with open(chemin, "r", encoding="utf-8") as f:
+        for ligne in f:
+            fic = json.loads(ligne.strip())  # transforme chaque ligne en dictionnaire
+            res.append(fic)  # ajoute le dictionnaire à la liste
+    return res
+
+def suppression(liste):
+    """
+    Fonction pour nettoyer les noms des acteurs en supprimant les crochets et les espaces superflus.
+    
+    Paramètre :
+        liste : liste de dictionnaires contenant les informations des films
+        
+    Retourne :
+        La liste de dictionnaires mise à jour avec les noms nettoyés.
+        
+    Complexité asymptotique : O(n * m), où n est le nombre de dictionnaires et m est le nombre d'acteurs par dictionnaire.
+    """
+    for dico in liste:
+        # Nettoyage des noms des acteurs
+        dico["cast"] = [nom.strip("[]").strip() for nom in dico["cast"]]
+    return liste
+
+def json_vers_nx(chemin):
+    """
+    Fonction pour transformer les données JSON en un graphe NetworkX.
+    
+    Paramètre :
+        chemin : chemin du fichier JSON
+        
+    Retourne :
+        Un graphe NetworkX représentant les relations entre les acteurs.
+        
+    Complexité asymptotique : O(n * m^2), où n est le nombre de films et m est le nombre d'acteurs par film.
+    """
+    transfo = suppression(transformation_dic(chemin))
+    G = nx.Graph()
+    for dico in transfo:
+        acteurs = dico["cast"]
+        G.add_nodes_from(acteurs)  # ajout des acteurs comme noeuds
+        for i in range(len(acteurs)):
+            for j in range(i + 1, len(acteurs)):
+                G.add_edge(acteurs[i], acteurs[j])  # ajout des arêtes entre les acteurs ayant joué ensemble
+    return G
 
 # Distance
 
@@ -106,6 +168,36 @@ def distanceV3(G, u, v):
 
 #est proche
 
+def collaborateurs_proches(G, u, k):
+    """
+    Fonction renvoyant l'ensemble des acteurs à distance au plus k de l'acteur u dans le graphe G. 
+    La fonction renvoie None si u est absent du graphe.
+    
+    Paramètres:
+        G: le graphe
+        u: le sommet de départ
+        k: la distance depuis u
+        
+    Retourne:
+        Un ensemble contenant les acteurs à distance au plus k de u.
+        
+    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes explorées jusqu'à la distance k.
+    """
+    if u not in G.nodes:
+        print(u, "est un illustre inconnu")
+        return None
+    collaborateurs = set()
+    collaborateurs.add(u)
+    for i in range(k):
+        collaborateurs_directs = set()
+        for c in collaborateurs:
+            for voisin in G.adj[c]:
+                if voisin not in collaborateurs:
+                    collaborateurs_directs.add(voisin)
+        # Union des nouveaux collaborateurs directs avec l'ensemble existant
+        collaborateurs = collaborateurs.union(collaborateurs_directs)
+    return collaborateurs
+
 def est_procheV1(G, u, v, k=1):
     """
     Détermine si l'acteur v se trouve à distance k de l'acteur u dans le graphe G.
@@ -139,7 +231,7 @@ def est_procheV1(G, u, v, k=1):
                     collaborateurs_directs.add(voisin)
         collaborateurs = collaborateurs.union(collaborateurs_directs)
 
-    return collaborateurs
+    return v in collaborateurs
 
 
 def est_procheV2(G, u, v, k=1):
@@ -266,7 +358,7 @@ def eloignement_maxV1(G: nx.Graph):
         for act2 in parcours:
             if act1 != act2:
                 # Calcul de la distance entre les paires de nœuds
-                temp = distance(G, act1, act2)
+                temp = distanceV3(G, act1, act2)
                 # Mise à jour de la distance maximale
                 if max_distance is None or temp > max_distance:
                     max_distance = temp
@@ -308,7 +400,27 @@ def eloignement_maxV2(G: nx.Graph):
                     
     return max_distance  
 
-def eloignement_maxV3(graph: nx.Graph):
+def bfs_distance_maximaleV1(G, noeud_depart):
+    """
+    Effectue un parcours en largeur (BFS) pour trouver le nœud le plus éloigné
+    à partir d'un nœud de départ et la distance maximale.
+
+    Paramètres :
+        G : le graphe
+        noeud_depart : le nœud de départ pour le BFS
+
+    Retourne :
+        Un tuple (noeud_final, distance_max) où noeud_final est le nœud le plus éloigné
+        du noeud_depart et distance_max est la distance jusqu'à ce nœud.
+
+    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes.
+    """
+    distances = nx.single_source_shortest_path_length(G, noeud_depart)
+    noeud_final = max(distances, key=distances.get)
+    distance_max = distances[noeud_final]
+    return noeud_final, distance_max
+
+def eloignement_maxV3(G: nx.Graph) -> int:
     """
     Trouve la distance maximale entre toutes les paires de nœuds dans le graphe G.
 
@@ -317,23 +429,27 @@ def eloignement_maxV3(graph: nx.Graph):
 
     Retourne :
         La distance maximale entre toutes les paires de nœuds dans le graphe.
-        
-    Complexité asymptotique: O(n + m), où n est le nombre d'acteurs proches de actor1 ou actor2
+
+    Complexité asymptotique : O(n * (n + m)), où n est le nombre de sommets et m est le nombre d'arêtes.
     """
-    # Choisissez un nœud arbitraire (ici, nous choisissons le premier nœud)
-    noeud_depart = next(iter(graph.nodes()))
+    distance_maximale = 0
+    vus = set()
     
-    # Trouvez le nœud le plus éloigné de ce nœud arbitraire
-    noeud_eloigne = max(nx.single_source_shortest_path_length(graph, noeud_depart).items(), key=lambda x: x[1])[0]
+    for noeud in G.nodes:
+        if noeud not in vus:
+            # Trouver la composante connexe contenant le noeud
+            composante_connexe = nx.node_connected_component(G, noeud)
+            vus.update(composante_connexe)
+            # Étape 1 : Trouver le nœud le plus éloigné de n'importe quel nœud de la composante
+            u, _ = bfs_distance_maximaleV1(G, noeud)
+            # Étape 2 : Trouver le nœud le plus éloigné de u
+            _, distance = bfs_distance_maximaleV1(G, u)
+            # Mettre à jour la distance maximale trouvée
+            distance_maximale = max(distance_maximale, distance)
     
-    # Trouvez le nœud le plus éloigné de ce nœud le plus éloigné précédemment trouvé
-    diametre_approximatif = max(nx.single_source_shortest_path_length(graph, noeud_eloigne).values())
-    
-    return diametre_approximatif  # Complexité asymptotique: O(n + m), où n est le nombre d'acteurs proches de actor1 ou actor2
+    return distance_maximale
 
-
-
-def bfs_distance_maximale(G, noeud_depart):
+def bfs_distance_maximaleV2(G, noeud_depart):
     """
     Effectue un parcours en largeur (BFS) pour trouver le nœud le plus éloigné
     à partir d'un nœud de départ et la distance maximale.
@@ -364,7 +480,7 @@ def bfs_distance_maximale(G, noeud_depart):
     
     return dernier_noeud, distance_max
 
-def eloignement_max(G):
+def eloignement_maxV4(G):
     """
     Trouve la distance maximale entre toutes les paires de nœuds dans le graphe G.
 
@@ -380,8 +496,9 @@ def eloignement_max(G):
     distance_maximale = 0
     
     for noeud in G:
-        u, _ = bfs_distance_maximale(G, noeud)
-        _, distance = bfs_distance_maximale(G, u)
+        u, _ = bfs_distance_maximaleV2(G, noeud)
+        _, distance = bfs_distance_maximaleV2(G, u)
         distance_maximale = max(distance_maximale, distance)
     
     return distance_maximale
+

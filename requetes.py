@@ -434,27 +434,8 @@ def centre_hollywoodOpti(graphe):
     # Retourne l'élément central du chemin le plus long
     return chemin_le_plus_long[1][len(chemin_le_plus_long[1]) // 2]
 
-def bfs_distance_maximaleOpti(G, noeud_depart):
-    """
-    Effectue un parcours en largeur (BFS) pour trouver le nœud le plus éloigné
-    à partir d'un nœud de départ et la distance maximale.
 
-    Paramètres :
-        G : le graphe
-        noeud_depart : le nœud de départ pour le BFS
-
-    Retourne :
-        Un tuple (noeud_final, distance_max) où noeud_final est le nœud le plus éloigné
-        du noeud_depart et distance_max est la distance jusqu'à ce nœud.
-
-    Complexité asymptotique : O(n + m), où n est le nombre de sommets et m est le nombre d'arêtes.
-    """
-    distances = nx.single_source_shortest_path_length(G, noeud_depart)
-    noeud_final = max(distances, key=distances.get)
-    distance_max = distances[noeud_final]
-    return noeud_final, distance_max
-
-def eloignement_maxOpti(G: nx.Graph) -> int:
+def eloignement_maxOpti(graph: nx.Graph):
     """
     Trouve la distance maximale entre toutes les paires de nœuds dans le graphe G.
 
@@ -463,28 +444,16 @@ def eloignement_maxOpti(G: nx.Graph) -> int:
 
     Retourne :
         La distance maximale entre toutes les paires de nœuds dans le graphe.
-
-    Complexité asymptotique : O(n * (n + m)), où n est le nombre de sommets et m est le nombre d'arêtes.
+        
+    Complexité asymptotique: O(n + m), où n est le nombre d'acteurs proches de actor1 ou actor2
     """
-    distance_maximale = 0
-    vus = set()
+    # Choisissez un nœud arbitraire (ici, nous choisissons le premier nœud)
+    noeud_depart = next(iter(graph.nodes()))
     
-    for noeud in G.nodes:
-        if noeud not in vus:
-            # Trouver la composante connexe contenant le noeud
-            composante_connexe = nx.node_connected_component(G, noeud)
-            vus.update(composante_connexe)
-            # Étape 1 : Trouver le nœud le plus éloigné de n'importe quel nœud de la composante
-            u, _ = bfs_distance_maximaleOpti(G, noeud)
-            # Étape 2 : Trouver le nœud le plus éloigné de u
-            _, distance = bfs_distance_maximaleOpti(G, u)
-            # Mettre à jour la distance maximale trouvée
-            distance_maximale = max(distance_maximale, distance)
+    # Trouvez le nœud le plus éloigné de ce nœud arbitraire
+    noeud_eloigne = max(nx.single_source_shortest_path_length(graph, noeud_depart).items(), key=lambda x: x[1])[0]
     
-    return distance_maximale
-
-G = json_vers_nx("jeux de données réduits-20240506/data_100.txt")
-start = time.time()
-print(eloignement_maxOpti(G))
-end = time.time()
-print(end - start)
+    # Trouvez le nœud le plus éloigné de ce nœud le plus éloigné précédemment trouvé
+    diametre_approximatif = max(nx.single_source_shortest_path_length(graph, noeud_eloigne).values())
+    
+    return diametre_approximatif  # Complexité asymptotique: O(n + m), où n est le nombre d'acteurs proches de actor1 ou actor2
