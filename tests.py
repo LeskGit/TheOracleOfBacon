@@ -61,7 +61,7 @@ def test_collaborateurs_communs():
 def test_est_proche():
     assert not rq.est_proche(G1, 1, 5)
     assert rq.est_proche(G2, 1, 2)
-    assert rq.est_proche(G2, 1, 30, 5) #distance passe de 24 a 5 pour des questions de simplicité et lisibilité
+    assert rq.est_proche(G2, 1, 30, 5) 
     
 def test_distance():
     assert rq.distance(G1,1,2) == 1
