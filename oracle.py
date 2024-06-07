@@ -155,7 +155,7 @@ def menu_collaborateur():
                   actor1 = input("Veuillez entrer le prenom nom de l'acteur 1  (avec majuscule) : ")
                   actor2 = input("Veuillez entrer le prenom nom de l'acteur 2 (avec majuscule) : ")
                   try:
-                      print("Les collaborateurs de ", actor1, "et ", actor2, "sont : ", rq.collaborateurs_communs(data, actor1, actor2))
+                      print("Les collaborateurs communs de ", actor1, "et ", actor2, "sont : ", rq.collaborateurs_communs(data, actor1, actor2))
                       menu_collaborateur()
                   except:
                       print("L'un des acteurs est introuvable")
