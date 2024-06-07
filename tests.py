@@ -54,9 +54,9 @@ def afficheG(G):
 #Tests
 
 def test_collaborateurs_communs():
-    assert rq.collaborateurs_communs2(G1,1,2) == {3}
-    assert rq.collaborateurs_communs2(G1,2,5) == {4, 3}
-    assert rq.collaborateurs_communs2(G1,17,28) is None
+    assert rq.collaborateurs_communs(G1,1,2) == {3}
+    assert rq.collaborateurs_communs(G1,2,5) == {4, 3}
+    assert rq.collaborateurs_communs(G1,17,28) is None
     
 def test_est_proche():
     assert rq.est_proche(G1, 1, 5)
@@ -74,9 +74,9 @@ def test_distance_naive():
     assert rq.distance(G1,17,28) is None
     
 def test_centralite():
-    assert rq.centralite_acteur(G1,1) == 2
-    assert rq.centralite_acteur(G2,2) == 5
-    assert rq.centralite_acteur(G2,17) == 8
+    assert rq.centralite(G1,1) == 2
+    assert rq.centralite(G2,2) == 5
+    assert rq.centralite(G2,17) == 8
 
 def test_centralite_holywood():
     assert rq.centre_hollywood(G1,1) == 1
