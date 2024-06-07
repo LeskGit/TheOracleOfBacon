@@ -111,9 +111,15 @@ def menu_centralite():
              case "A":
                   print("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule)")
                   acteur = input()
-                  print(acteur , "à une centralité de :",rq.centralite_acteur(data, acteur)[1])
+                  try:
+                      print(acteur , "à une centralité de :",rq.centralite(data, acteur)[1])
+                      menu_centralite()
+                  except:
+                      print("Acteur introuvable")
+                      menu_centralite()
              case "H":
-                  print("Le centre d'Holywood est :", rq.centre_hollywood(data)[0])
+                  print("Le centre d'Holywood est : ", rq.centre_hollywood(data)[0])
+                  menu_centralite()
              case "I":
                  print("=============================INFORMATION=========================================")
                  print("Voici les informations des différentes fonctions présentes dans ce menu : ")
@@ -146,12 +152,22 @@ def menu_collaborateur():
         lettre = input("Veuillez entrer une lettre majuscule ici : ")
         match lettre:
              case "C":
-                  actor1 = input()
-                  actor2 = input()
-                  print("Les collaborateurs de ", actor1, "et ", actor2, "sont : ", rq.collaborateurs_communs(data, actor1, actor2))
+                  actor1 = input("Veuillez entrer le prenom nom de l'acteur 1  (avec majuscule) : ")
+                  actor2 = input("Veuillez entrer le prenom nom de l'acteur 2 (avec majuscule) : ")
+                  try:
+                      print("Les collaborateurs de ", actor1, "et ", actor2, "sont : ", rq.collaborateurs_communs(data, actor1, actor2))
+                      menu_collaborateur()
+                  except:
+                      print("L'un des acteurs est introuvable")
+                      menu_collaborateur()
              case "P":
-                  actor1 = input()
-                  print("Les collaborateurs de ", actor1, "sont : ", rq.collaborateurs_proches(data, actor1, 1))
+                  actor1 = input("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule) : ")
+                  if rq.collaborateurs_proches(data, actor1, 1) != None:
+                     print("Les collaborateurs de ", actor1, "sont : ", rq.collaborateurs_proches(data, actor1, 1))
+                     menu_collaborateur()
+                  else:
+                      print("Acteur introuvable")
+                      menu_collaborateur()
              case "Q":
                 menu_principal()
              case "I":
@@ -228,10 +244,14 @@ def menu_distance():
                 print("=================================================================================")
                 menu_distance()
             case "D":
-                acteur1 = input("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule)")
-                acteur2 = input("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule)")
-                print("La distance entre ces deux acteurs est : ", rq.distance(data, acteur1, acteur2))
-                menu_distance()
+                acteur1 = input("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule) : ")
+                acteur2 = input("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule) : ")
+                if rq.distance(data, acteur1, acteur2) != None:
+                    print("La distance entre ces deux acteurs est : ", rq.distance(data, acteur1, acteur2))
+                    menu_distance()
+                else:
+                    print("L'un des acteurs est introuvable")
+                    menu_distance()
             case "Q":
                 menu_principal()
             case _:

@@ -299,9 +299,9 @@ def centre_hollywood(G):
     acteur_central = ""
     dist_max = None
     for actor in G.nodes():
-        centralite = centralite(G, actor)
-        if dist_max is None or centralite[1] < dist_max:
-            dist_max = centralite[1]
+        centralite_acteur = centralite(G, actor)
+        if dist_max is None or centralite_acteur[1] < dist_max:
+            dist_max = centralite_acteur[1]
             acteur_central = actor
     return acteur_central, dist_max
 
