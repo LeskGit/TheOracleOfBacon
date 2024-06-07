@@ -330,7 +330,40 @@ def eloignement_max(G: nx.Graph):
     
     return distance_maximale
 
-#def centralite_groupe(G,S):
+def centralite_groupe(G, S):
+    """
+    Détermine le centre d'un groupe d'acteurs S dans le graphe G.
+
+    Paramètres :
+        G : le graphe (sous forme de dictionnaire où les clés sont les nœuds et les valeurs sont les listes de voisins)
+        S : le groupe d'acteurs (liste ou ensemble de nœuds)
+
+    Retourne :
+        Le nœud du graphe G qui est le centre du groupe d'acteurs S.
+        
+    Complexité asymptotique en borne supérieure : O(n * |S| * (n + m)),
+    où n est le nombre de sommets et m est le nombre d'arêtes du graphe,
+    et |S| est le nombre d'acteurs dans le groupe S.
+    """
+    # Vérification que tous les acteurs du groupe sont présents dans le graphe
+    for acteur in S:
+        if acteur not in G:
+            return None
+
+    # Calcul des distances totales de chaque nœud du graphe vers tous les nœuds du groupe S
+    distances_totales = {}
+    for noeud in G:
+        distance_totale = 0
+        for acteur in S:
+            distance = distance(G, noeud, acteur)
+            if distance is None or distance == -1:
+                return None
+            distance_totale += distance
+        distances_totales[noeud] = distance_totale
+
+    # Trouver le nœud avec la distance totale minimale
+    centre_groupe = min(distances_totales, key=distances_totales.get)
+    return centre_groupe
 
 # Fonctions optimisées avec des fonctions NetworkX :
 
