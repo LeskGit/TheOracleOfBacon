@@ -118,7 +118,7 @@ def menu_centralite():
                       print("Acteur introuvable")
                       menu_centralite()
              case "H":
-                  print("Le centre d'Holywood est : ", rq.centre_hollywood(data)[0])
+                  print("Le centre d'Holywood est : ", rq.centre_hollywoodOpti(data))
                   menu_centralite()
              case "I":
                  print("=============================INFORMATION=========================================")
@@ -229,8 +229,8 @@ def menu_distance():
          "|                              |\n"
          "|      I - Information         |\n"
          "|      D - Distance            |\n"
+         "|      E - Eloignement max     |\n"
          "|      Q - Quitter             |\n"
-         "|                              |\n"
          "|                              |\n"
          "|                              |\n"
          "|______________________________|\n")
@@ -246,12 +246,15 @@ def menu_distance():
             case "D":
                 acteur1 = input("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule) : ")
                 acteur2 = input("Veuillez entrer le prenom nom de l'acteur souhaité (avec majuscule) : ")
-                if rq.distance(data, acteur1, acteur2) != None:
-                    print("La distance entre ces deux acteurs est : ", rq.distance(data, acteur1, acteur2))
+                if rq.distanceOpti(data, acteur1, acteur2) != None:
+                    print("La distance entre ces deux acteurs est : ", rq.distanceOpti(data, acteur1, acteur2))
                     menu_distance()
                 else:
                     print("L'un des acteurs est introuvable")
                     menu_distance()
+            case "E":
+                print("L'éloignement maximum entre deux noeuds est de : ", rq.eloignement_maxOpti(data))
+                menu_distance()
             case "Q":
                 menu_principal()
             case _:
